@@ -126,6 +126,18 @@ function addArea() {
     // Tambahkan area ke peta dengan warna abu-abu
     areasToAdd.forEach(area => {
         updateMap(area);
+
+        var newRow = `
+            <tr>
+                <td>${area.alt}</td>
+                <td>${area.alt}</td>
+                <td>${area.coords}</td>
+                <td>${area.shape}</td>
+                <td>${area.status}</td>
+                <td>${area.description}</td>
+            </tr>`;
+
+        $('#area-table-body').append(newRow);
     });
 
     updateArea();
@@ -156,7 +168,26 @@ function updateArea() {
                 fillColor: 'ff0000',
                 selected: true,
             }
-        ],
+        ],// Tetap gunakan singleSelect
+        onClick: function(e) {
+            const key = e.key; // Ambil key area yang dipilih
+
+            if (selectedAreas.has(key)) {
+                selectedAreas.delete(key); // Hapus area dari pilihan jika sudah dipilih sebelumnya
+            } else {
+                selectedAreas.add(key); // Tambahkan area ke pilihan
+            }
+
+            // Reset semua area terlebih dahulu
+            $('#map-image').mapster('deselect');
+
+            // Set semua area yang ada di dalam selectedAreas
+            selectedAreas.forEach(areaKey => {
+                $('#map-image').mapster('set', true, areaKey);
+            });
+
+            return false; // Menghentikan event handler default dari mapster
+        },
         onConfigured: function() {
             $('#map-image').mapster('set', ['kosong,baik,rusak']);
         }

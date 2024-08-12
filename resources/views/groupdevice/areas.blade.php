@@ -6,7 +6,7 @@
 
     <div class="mx-2">
         <div id="map-image-container" class="justify-content-center">
-            <img id="map-image" src="/img/groupdevice/{{ $groupdevice->image }}" class="img-fluid rounded shadow" usemap="#image-map">
+            <img id="map-image" src="/img/gdevice/{{ $groupdevice->image }}" class="img-fluid rounded shadow" usemap="#image-map">
             <map name="image-map" id="image-map">
                 @foreach ($areas as $area)
                     <area data-status="{{ $area->status }}" alt="{{ $area->name }},{{ $area->status }}"
@@ -81,9 +81,9 @@
                     // console.log(data);
 
                     alert(data);
-                    data.areas.forEach(function(area) {
-                        updateTable(area);
-                    });
+                    // data.areas.forEach(function(area) {
+                    //     updateTable(area);
+                    // });
                     areasToAdd = [];
                 },
                 error: function(e) {
