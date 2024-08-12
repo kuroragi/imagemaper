@@ -10,7 +10,7 @@
         <tbody>
             @foreach ($group as $g)
                 <th>{{ $g->name }}</th>
-                <th><img src="/img/gpdevice/{{ $g->image }}" width="100" alt=""></th>
+                <th><img src="/img/gdevice/{{ $g->image }}" width="100" alt=""></th>
                 <th><a href="/groupdevice/{{ $g->id }}">detail</a></th>
             @endforeach
         </tbody>
