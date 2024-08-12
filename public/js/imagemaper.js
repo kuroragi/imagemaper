@@ -6,7 +6,9 @@ const rectNode = 2,
     circleNode = 2;
 let isFirstClick = true;
 let isFirstClickCircle = true;
+let isdblClicked = false;
 let firstX, firstY, $newArea, xOne, yOne;
+var timeoutId = 0;
 
 function addPoint(x, y, s) {
     if (s === 'rect') {
@@ -53,8 +55,14 @@ function addPoint(x, y, s) {
             isFirstClickCircle = true;
             selectedCoords = [];
         }
-    } else if (s === 'poly' && selectedCoords.length > 2) {
-        if (selectedCoords.length >= 3 && confirm('Are you done selecting points for the polygon?')) {
+    } else if (s === 'poly') {
+        selectedCoords.push({
+            x: x,
+            y: y
+        });
+        if (selectedCoords.length >= 3 && isdblClicked === true) {
+            console.log('selesai');
+            
             var coords = selectedCoords.map(function(pt) {
                 return pt.x + ',' + pt.y;
             }).join(',');
@@ -66,8 +74,14 @@ function addPoint(x, y, s) {
                 alert('Please select an area to add coordinates.');
             }
 
+            isdblClicked = false;
             pointClick = 0;
             selectedCoords = [];
+        }else{
+            selectedCoords.push({
+                x: x,
+                y: y
+            });
         }
     }
 }
@@ -220,6 +234,8 @@ function selectedRadioCheck(x, y, c, s) {
         } else {
             pointClick = 0;
         }
+    }else{
+        addPoint(x, y, s);
     }
 }
 

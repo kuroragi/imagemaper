@@ -149,6 +149,7 @@
                 // }
                 var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
                 if (!selectedRadio.length) {
+                    pointClick = 0;
                     alert('Please select an area to add coordinates.');
                 }
                 var shape = selectedRadio.find('select[name^="shape_"]').val();
@@ -156,6 +157,12 @@
 
 
                 selectedRadioCheck(x, y, pointClick, shape);
+            });
+
+            $('#map-image').on('mousedown', function() {
+                timeoutId = setTimeout(() => {isdblClicked = true;}, 500);
+            }).on('mouseup mouseleave', function() {
+                clearTimeout(timeoutId);
             });
 
             $('#add-area-btn').on('click', function() {
