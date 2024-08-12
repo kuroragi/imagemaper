@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\OdpController;
-use App\Http\Controllers\OdpdetailController;
+use App\Http\Controllers\GroupdeviceController;
+use App\Http\Controllers\ImagemapController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,5 +19,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('/odp', OdpController::class);
-Route::post('/odpdetail', [OdpdetailController::class, 'store'])->name('save.areas');
+Route::resource('/groupdevice', GroupdeviceController::class);
+Route::resource('/imagemap', ImagemapController::class);

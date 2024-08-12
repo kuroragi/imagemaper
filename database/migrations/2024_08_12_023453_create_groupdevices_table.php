@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Odpdetail extends Migration
+class CreateGroupdevicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,13 @@ class Odpdetail extends Migration
      */
     public function up()
     {
-        Schema::create('odpdetails', function (Blueprint $table) {
+        Schema::create('groupdevices', function (Blueprint $table) {
             $table->id();
-            $table->string('odp_id');
-            $table->string('alt');
-            $table->string('coords');
-            $table->string('shape');
-            $table->string('status');
-            $table->text('deskripsi');
+            $table->string('collection_id')->nullable();
+            $table->string('type')->nullable();
+            $table->text('image');
+            $table->string('coordinate')->nullable();
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ class Odpdetail extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('odpdetails');
+        Schema::dropIfExists('groupdevices');
     }
 }

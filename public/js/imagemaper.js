@@ -77,7 +77,7 @@ function addAreaRow() {
     var newRow = `
         <div class="area-row">
             <input type="radio" name="selected_area" value="${areaCount}">
-            <input type="text" class="form-control" name="alt_${areaCount}" id="alt" placeholder="Alt Text" required>
+            <input type="text" class="form-control" name="alt_${areaCount}" id="alt" placeholder="Name Area" required>
             <input type="text" class="form-control" name="coords_${areaCount}" placeholder="Coordinates" readonly>
             <select class="form-control" name="shape_${areaCount}">
                 <option value="rect">Rectangle</option>
@@ -89,7 +89,7 @@ function addAreaRow() {
                 <option value="baik">Baik</option>
                 <option value="rusak">Rusak</option>
             </select>
-            <textarea class="form-control" name="deskripsi_${areaCount}" placeholder="Description"></textarea>
+            <textarea class="form-control" name="description_${areaCount}" placeholder="Description"></textarea>
         </div>
     `;
     $('#form-container').append(newRow);
@@ -111,7 +111,7 @@ function addArea() {
             coords: coords,
             shape: formData.find(input => input.name.startsWith('shape')).value,
             status: formData.find(select => select.name.startsWith('status')).value,
-            deskripsi: formData.find(textarea => textarea.name.startsWith('deskripsi')).value
+            description: formData.find(textarea => textarea.name.startsWith('description')).value
         };
 
 
@@ -171,7 +171,7 @@ function updateTable(area) {
         '<td>' + area.coords + '</td>' +
         '<td>' + area.shape + '</td>' +
         '<td>' + area.status + '</td>' +
-        '<td>' + area.deskripsi + '</td>' +
+        '<td>' + area.description + '</td>' +
         '</tr>'
     );
 }

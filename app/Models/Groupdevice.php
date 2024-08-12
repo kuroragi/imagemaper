@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class odpdetail extends Model
+class Groupdevice extends Model
 {
     protected $guarded = ['id'];
 }
