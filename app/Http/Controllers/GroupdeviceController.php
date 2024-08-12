@@ -58,7 +58,7 @@ class GroupdeviceController extends Controller
 
             $file = $request->file('image');
             
-            $file->storeAs('/img/groupdevice/', $request->name.'.'.$fileext, ['disk' => 'myfile']);
+            $file->storeAs('/img/gdevice/', $request->name.'.'.$fileext, ['disk' => 'myfile']);
 
             $validatedData['image'] = $request->name.'.'.$fileext;
         }
