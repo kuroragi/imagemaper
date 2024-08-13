@@ -16,8 +16,26 @@
             </map>
         </div>
     </div>
-    <div class="row justify-content-center">
-        <div id="form-container" class="col-12 my-3">
+
+    <div class="row justify-content-center my-3">
+        <div id="form-container" class="col-12 mt-3">
+            <div class="row border-bottom">
+                <div class="col col-1 align-content-center text-bold">
+                    Aktif
+                </div>
+                <div class="col col-3 align-content-center text-bold">
+                    Nama Area
+                </div>
+                <div class="col col-2 align-content-center text-bold">
+                    Shape
+                </div>
+                <div class="col col-2 align-content-center text-bold">
+                    Status
+                </div>
+                <div class="col col-3 align-content-center text-bold">
+                    Deskripsi
+                </div>
+            </div>
             <!-- Initial form with inputs will be appended here -->
         </div>
     </div>
@@ -57,6 +75,11 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Callout -->
+    <div id="callout" class="alert alert-success callout">
+        <strong>Berhasil!</strong> Coordinate baru berhasil dimasukan.
     </div>
 
     <script>

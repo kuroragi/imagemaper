@@ -20,6 +20,14 @@
         .area-row {
             margin-bottom: 10px;
         }
+        .callout {
+            display: none; /* Initially hidden */
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+            width: 300px;
+        }
     </style>
 </head>
 

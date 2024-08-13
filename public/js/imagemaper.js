@@ -6,6 +6,7 @@ const rectNode = 2,
     circleNode = 2;
 let isFirstClick = true;
 let isFirstClickCircle = true;
+let isFirstAreaAdd = true;
 let isdblClicked = false;
 let firstX, firstY, $newArea, xOne, yOne;
 var timeoutId = 0;
@@ -31,6 +32,7 @@ function addPoint(x, y, s) {
 
             pointClick = 0;
             selectedCoords = [];
+            runCallout();
         }
     } else if (s === 'circle') {
         if (isFirstClickCircle) {
@@ -54,6 +56,7 @@ function addPoint(x, y, s) {
             pointClick = 0;
             isFirstClickCircle = true;
             selectedCoords = [];
+            runCallout();
         }
     } else if (s === 'poly') {
         selectedCoords.push({
@@ -77,6 +80,7 @@ function addPoint(x, y, s) {
             isdblClicked = false;
             pointClick = 0;
             selectedCoords = [];
+            runCallout();
         }else{
             selectedCoords.push({
                 x: x,
@@ -89,30 +93,51 @@ function addPoint(x, y, s) {
 function addAreaRow() {
     areaCount++;
     var newRow = `
-        <div class="area-row">
-            <input type="radio" name="selected_area" value="${areaCount}">
-            <input type="text" class="form-control" name="alt_${areaCount}" id="alt" placeholder="Name Area" required>
-            <input type="text" class="form-control" name="coords_${areaCount}" placeholder="Coordinates" readonly>
-            <select class="form-control" name="shape_${areaCount}">
-                <option value="rect">Rectangle</option>
-                <option value="circle">Circle</option>
-                <option value="poly">Polygon</option>
-            </select>
-            <select class="form-control" name="status_${areaCount}" id="status">
-                <option value="kosong">Kosong</option>
-                <option value="baik">Baik</option>
-                <option value="rusak">Rusak</option>
-            </select>
-            <textarea class="form-control" name="description_${areaCount}" placeholder="Description"></textarea>
+        <div class="area-row row">
+            <div class="col col-1 align-content-center text-center">
+                <input type="radio" name="selected_area" value="${areaCount}">
+            </div>
+            <div class="col col-3 align-content-center text-center">
+                <input type="text" class="form-control" name="alt_${areaCount}" id="alt" placeholder="Name Area" required>
+            </div>
+            <input type="hidden" class="form-control" name="coords_${areaCount}" placeholder="Coordinates" readonly>
+            <div class="col col-2 align-content-center text-center">
+                <select class="form-control" name="shape_${areaCount}">
+                    <option value="rect">Rectangle</option>
+                    <option value="circle">Circle</option>
+                    <option value="poly">Polygon</option>
+                </select>
+            </div>
+            <div class="col col-2 align-content-center text-center">
+                <select class="form-control" name="status_${areaCount}" id="status">
+                    <option value="kosong">Kosong</option>
+                    <option value="baik">Baik</option>
+                    <option value="rusak">Rusak</option>
+                </select>
+            </div>
+            <div class="col col-3 align-content-center text-center">
+                <textarea class="form-control" name="description_${areaCount}" placeholder="Description"></textarea>
+            </div>
         </div>
     `;
     $('#form-container').append(newRow);
 }
 
 function addArea() {
+    if(areasToAdd.length > 0){
+        const area_table = document.getElementById("area-table-body");
+        const map_area = document.getElementById("image-map");
+        for (let i = 0; i < areasToAdd.length; i++) {
+            area_table.removeChild(area_table.lastElementChild);
+            map_area.removeChild(map_area.lastElementChild);
+        }
+    
+        // updateArea();
+    };
+
     areasToAdd = [];
     $('.area-row').each(function() {
-        var formData = $(this).find('input, select, textarea').serializeArray();
+        // var formData = $(this).find('input, select, textarea').serializeArray();
         var coords = $(this).find('[name^="coords"]').val();
 
         // if (coords.split(',').length < 4) {
@@ -121,11 +146,11 @@ function addArea() {
         // }
 
         var areaData = {
-            alt: formData.find(input => input.name.startsWith('alt')).value,
+            alt: $(this).find('[name^="alt"]').val(),
             coords: coords,
-            shape: formData.find(input => input.name.startsWith('shape')).value,
-            status: formData.find(select => select.name.startsWith('status')).value,
-            description: formData.find(textarea => textarea.name.startsWith('description')).value
+            shape: $(this).find('[name^="shape"]').val(),
+            status: $(this).find('[name^="status"]').val(),
+            description: $(this).find('[name^="description"]').val()
         };
 
 
@@ -256,4 +281,17 @@ function updateMap(area) {
                 shape="${area.shape}">
     `;
     $('#image-map').append(areaRow);
+}
+
+function runCallout() {
+    // Simulate a function running
+    setTimeout(function() {
+        // Show the callout once the function is done
+        $('#callout').fadeIn(100);
+
+        // Hide the callout after 3 seconds
+        setTimeout(function() {
+            $('#callout').fadeOut(500);
+        }, 2000);
+    }, 500); // Simulate 1 second delay
 }
