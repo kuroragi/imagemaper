@@ -94,7 +94,7 @@
     <script>
         function saveAreas() {
             collectArea();
-            
+
             if (areasToAdd.length === 0) {
                 alert('No areas to save.');
                 return;
@@ -204,7 +204,7 @@
 
             $('#map-image').on('mousedown', function() {
                 timeoutId = setTimeout(() => {isdblClicked = true;}, 500);
-            }).on('mouseup mouseleave', function() {
+            }).on('mouseup', function() {
                 clearTimeout(timeoutId);
             });
 

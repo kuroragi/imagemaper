@@ -69,6 +69,8 @@ function addPoint(x, y, s) {
                 alert('Please select an area to add coordinates.');
             }
 
+            let areaId = selectedRadio.find('[id^="area_id"]').val();
+
             let newArea = {
                 areaId: areaId,
                 alt: alt,
@@ -99,6 +101,8 @@ function addPoint(x, y, s) {
             } else {
                 alert('Please select an area to add coordinates.');
             }
+
+            let areaId = selectedRadio.find('[id^="area_id"]').val();
 
             let newArea = {
                 areaId: areaId,
