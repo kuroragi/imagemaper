@@ -69,9 +69,19 @@ function addPoint(x, y, s) {
                 alert('Please select an area to add coordinates.');
             }
 
+            let newArea = {
+                areaId: areaId,
+                alt: alt,
+                coords: coords,
+                shape: shape,
+                status: status,
+                description: description,
+            };
+
             pointClick = 0;
             isFirstClickCircle = true;
             selectedCoords = [];
+            addArea(newArea);
         }
     } else if (s === 'poly') {
         selectedCoords.push({
@@ -90,9 +100,19 @@ function addPoint(x, y, s) {
                 alert('Please select an area to add coordinates.');
             }
 
+            let newArea = {
+                areaId: areaId,
+                alt: alt,
+                coords: coords,
+                shape: shape,
+                status: status,
+                description: description,
+            };
+
             isdblClicked = false;
             pointClick = 0;
             selectedCoords = [];
+            addArea(newArea);
         }else{
             selectedCoords.push({
                 x: x,
