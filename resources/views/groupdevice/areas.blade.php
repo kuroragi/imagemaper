@@ -5,13 +5,13 @@
     <h1 class="text-center mb-4">Map Your Image</h1>
 
     <div class="mx-2">
-        <div id="map-image-container" class="justify-content-center">
+        <div id="map-image-container" class=" w-100 text-center">
             <img id="map-image" src="/img/gdevice/{{ $groupdevice->image }}" class="img-fluid rounded shadow" usemap="#image-map">
             <map name="image-map" id="image-map">
                 @foreach ($areas as $area)
                     <area data-status="{{ $area->status }}" alt="{{ $area->name }},{{ $area->status }}"
                         title="{{ $area->name }}" href="javascript:void(0);" coords="{{ $area->coordinate }}"
-                        shape="{{ $area->shape }}" {{-- onclick="runFunction('{{ $area->alt }}')" --}}>
+                        shape="{{ $area->shape }}" id="area-button">
                 @endforeach
             </map>
         </div>
@@ -77,6 +77,15 @@
         </div>
     </div>
 
+    <div id="infoPanel" class="info-panel">
+        <span class="close-btn">&times;</span>
+        <div class="p-3">
+            <h4>Information Panel</h4>
+            <p>This is the sliding panel content.</p>
+            <!-- Panel content can be added here -->
+        </div>
+    </div>
+
     <!-- Callout -->
     <div id="callout" class="alert alert-success callout">
         <strong>Berhasil!</strong> Coordinate baru berhasil dimasukan.
@@ -114,6 +123,17 @@
                 }
             });
         }
+
+        $('#image-map').on('click', '#area-button', function(){
+            $('#infoPanel').addClass('show');
+            $('#mainContainer').addClass('shifted');
+        });
+
+        $('.close-btn').click(function(){
+            $('#infoPanel').removeClass('show');
+            $('#mainContainer').removeClass('shifted');
+            updateArea()
+        });
 
         $(document).ready(function() {
             $('#map-image').on('click', function(e) {

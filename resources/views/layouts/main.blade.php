@@ -28,11 +28,38 @@
             z-index: 1050;
             width: 300px;
         }
+        .info-panel {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            height: 100%;
+            background-color: #f8f9fa;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            transition: right 0.5s ease-in-out;
+            z-index: 1040;
+        }
+        .info-panel.show {
+            right: 0;
+        }
+        #main-container {
+            transition: margin-right 0.5s ease-in-out;
+        }
+        #main-container.shifted {
+            margin-right: 500px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
-    <div class="container my-5">
+    <div id="main-container" class="container my-5">
         @yield('container')
     </div>
 </body>

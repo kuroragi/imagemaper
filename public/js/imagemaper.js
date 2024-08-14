@@ -10,6 +10,7 @@ let isFirstAreaAdd = true;
 let isdblClicked = false;
 let firstX, firstY, $newArea, xOne, yOne;
 var timeoutId = 0;
+const selectedAreas = new Set();
 
 function addPoint(x, y, s) {
     if (s === 'rect') {
@@ -44,7 +45,6 @@ function addPoint(x, y, s) {
             const radius = Math.sqrt(Math.pow(x - xOne, 2) + Math.pow(y - yOne, 2));
 
             var coords = xOne + ',' + yOne + ',' + radius
-            console.log(coords.toString());
 
             var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
             if (selectedRadio.length) {
@@ -64,7 +64,6 @@ function addPoint(x, y, s) {
             y: y
         });
         if (selectedCoords.length >= 3 && isdblClicked === true) {
-            console.log('selesai');
             
             var coords = selectedCoords.map(function(pt) {
                 return pt.x + ',' + pt.y;
@@ -138,19 +137,29 @@ function addArea() {
     areasToAdd = [];
     $('.area-row').each(function() {
         // var formData = $(this).find('input, select, textarea').serializeArray();
+        var alt = $(this).find('[name^="alt"]').val();
         var coords = $(this).find('[name^="coords"]').val();
+        var shape = $(this).find('[name^="shape"]').val();
+        var status = $(this).find('[name^="status"]').val();
+        var description = $(this).find('[name^="description"]').val();
 
         // if (coords.split(',').length < 4) {
         //     alert('Please select points on the image.');
         //     return false;
         // }
 
+        if(alt == null || alt == ''){
+            areasToAdd = [];
+            alert('Nama Area Jangan Ada Yang Kosong.');
+            return;
+        }
+
         var areaData = {
-            alt: $(this).find('[name^="alt"]').val(),
+            alt: alt,
             coords: coords,
-            shape: $(this).find('[name^="shape"]').val(),
-            status: $(this).find('[name^="status"]').val(),
-            description: $(this).find('[name^="description"]').val()
+            shape: shape,
+            status: status,
+            description: description
         };
 
 
@@ -208,25 +217,25 @@ function updateArea() {
                 selected: true,
             }
         ],// Tetap gunakan singleSelect
-        onClick: function(e) {
-            const key = e.key; // Ambil key area yang dipilih
+        // onClick: function(e) {
+        //     const key = e.key; // Ambil key area yang dipilih
 
-            if (selectedAreas.has(key)) {
-                selectedAreas.delete(key); // Hapus area dari pilihan jika sudah dipilih sebelumnya
-            } else {
-                selectedAreas.add(key); // Tambahkan area ke pilihan
-            }
+        //     if (selectedAreas.has(key)) {
+        //         selectedAreas.delete(key); // Hapus area dari pilihan jika sudah dipilih sebelumnya
+        //     } else {
+        //         selectedAreas.add(key); // Tambahkan area ke pilihan
+        //     }
 
-            // Reset semua area terlebih dahulu
-            $('#map-image').mapster('deselect');
+        //     // Reset semua area terlebih dahulu
+        //     $('#map-image').mapster('deselect');
 
-            // Set semua area yang ada di dalam selectedAreas
-            selectedAreas.forEach(areaKey => {
-                $('#map-image').mapster('set', true, areaKey);
-            });
+        //     // Set semua area yang ada di dalam selectedAreas
+        //     selectedAreas.forEach(areaKey => {
+        //         $('#map-image').mapster('set', true, areaKey);
+        //     });
 
-            return false; // Menghentikan event handler default dari mapster
-        },
+        //     return false; // Menghentikan event handler default dari mapster
+        // },
         onConfigured: function() {
             $('#map-image').mapster('set', ['kosong,baik,rusak']);
         }
@@ -251,7 +260,7 @@ function selectedRadioCheck(x, y, c, s) {
 
     // var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
     // var shape = selectedRadio.find('select[name^="shape_"]').val();
-    console.log('enter ' + s + ' ' + pointClick.toString());
+    // console.log('enter ' + s + ' ' + pointClick.toString());
     if (s === 'rect' || s === 'circle') {
         var radius = 2;
         if (c <= radius) {
