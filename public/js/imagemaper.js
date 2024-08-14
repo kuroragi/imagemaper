@@ -163,14 +163,6 @@ function addAreaRow() {
 function addArea(area) {
     
     $("#image-map #newArea_"+area.areaId) ? $("#image-map #newArea_"+area.areaId).remove() : '';
-    
-    var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
-
-    if(area.alt == null || area.alt == ''){
-        selectedRadio.find('[name^="coords"]').val('');
-        alert('Nama Area Jangan Ada Yang Kosong.');
-        return;
-    }
 
     updateMap(area);
     runCallout();

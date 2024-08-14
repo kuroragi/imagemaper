@@ -195,6 +195,14 @@
                     alert('Please select an area to add coordinates.');
                     return;
                 }
+
+                var alt = selectedRadio.find('[name^="alt"]').val();
+                if (alt == null || alt == '') {
+                    pointClick = 0;
+                    alert('Nama Area Masih Kosong, Mohon Diisi');
+                    return;
+                }
+
                 var shape = selectedRadio.find('select[name^="shape_"]').val();
                 // console.log(selectedRadio);
 
