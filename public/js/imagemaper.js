@@ -228,6 +228,50 @@ function collectArea() {
     // updateArea();
 }
 
+
+function saveAreas() {
+    collectArea();
+
+    if (areasToAdd.length === 0) {
+        alert('No areas to save.');
+        return;
+    }
+
+
+    // Debugging log to check areasToAdd
+    console.log('Areas to add:', areasToAdd);
+
+
+    $.ajax({
+        url: '/imagemap',
+        type: 'POST',
+        data: {
+            group_id: '{{ $groupdevice->id }}',
+            areas: areasToAdd,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(data) {
+            // console.log(data);
+
+            // alert(data);
+            // data.areas.forEach(function(area) {
+            //     updateTable(area);
+            // });
+            // areasToAdd = [];
+            location.reload();
+        },
+        error: function(e) {
+            console.log(e.responseText);
+        }
+    });
+}
+
+$('.close-btn').click(function(){
+    $('#infoPanel').removeClass('show');
+    $('#mainContainer').removeClass('shifted');
+    updateArea()
+});
+
 function updateArea() {
     $('#map-image').mapster({
         fillColor: 'ffff00',

@@ -11,7 +11,7 @@
                 @foreach ($areas as $area)
                     <area data-status="{{ $area->status }}" alt="{{ $area->name }},{{ $area->status }}"
                         title="{{ $area->name }}" href="javascript:void(0);" coords="{{ $area->coordinate }}"
-                        shape="{{ $area->shape }}" desc="{{ $area->description }}" id="areabutton">
+                        shape="{{ $area->shape }}" desc="{{ $area->description }}" id="areabutton{{ $area->id }}">
                 @endforeach
             </map>
         </div>
@@ -59,17 +59,27 @@
                         <th>Shape</th>
                         <th>Status</th>
                         <th>Deskripsi</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="area-table-body">
                     @foreach ($areas as $area)
-                        <tr>
+                        <tr id="tr{{ $area->id }}">
                             <td>{{ $area->name }}</td>
                             <td>{{ $area->name }}</td>
                             <td>{{ $area->coordinate }}</td>
                             <td>{{ $area->shape }}</td>
                             <td>{{ $area->status }}</td>
                             <td>{{ $area->description }}</td>
+                            <td class="text-danger text-center">
+                                <form action="/imagemape/{{ $area->id }}" action="post">
+                                    @csrf 
+                                    @method('delete')
+                                </form>
+                                <button type="submit" class="btn btn-danger" kode="{{ $area->id }}" id="deleteareabutton" onclick="return confirm('Yakin Hapus Area {{ $area->name }}?')">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -114,46 +124,31 @@
     </div>
 
     <script>
-        function saveAreas() {
-            collectArea();
-
-            if (areasToAdd.length === 0) {
-                alert('No areas to save.');
-                return;
-            }
-
-
-            // Debugging log to check areasToAdd
-            console.log('Areas to add:', areasToAdd);
-
-
+        $('.close-btn').click(function(){
+            $('#infoPanel').removeClass('show');
+            $('#mainContainer').removeClass('shifted');
+            updateArea()
+        });
+        
+        $("#area-table-body").on("click", "#deleteareabutton", function(){
+            let kode = $(this).attr('kode');
             $.ajax({
-                url: '/imagemap',
-                type: 'POST',
+                url: '/imagemap/'+kode,
+                type: 'DELETE',
                 data: {
-                    group_id: '{{ $groupdevice->id }}',
-                    areas: areasToAdd,
                     _token: '{{ csrf_token() }}'
                 },
                 success: function(data) {
                     // console.log(data);
+                    $("#image-map #areabutton"+data.id).remove();
+                    $("#area-table-body #tr"+data.id).remove();
 
-                    alert(data);
-                    // data.areas.forEach(function(area) {
-                    //     updateTable(area);
-                    // });
-                    areasToAdd = [];
+                    updateArea();
                 },
                 error: function(e) {
                     console.log(e.responseText);
                 }
             });
-        }
-
-        $('.close-btn').click(function(){
-            $('#infoPanel').removeClass('show');
-            $('#mainContainer').removeClass('shifted');
-            updateArea()
         });
 
         $(document).ready(function() {

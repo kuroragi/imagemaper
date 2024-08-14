@@ -88,6 +88,10 @@ class ImagemapController extends Controller
      */
     public function destroy(Imagemap $imagemap)
     {
-        //
+        // return response()->json("berhasil masuk hapus");
+
+        Imagemap::destroy('id', $imagemap->id);
+
+        return response()->json(['msg' => 'Berhasil Hapus data '.$imagemap->name, 'id' => $imagemap->id]);
     }
 }
