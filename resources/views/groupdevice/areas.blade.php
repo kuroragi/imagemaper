@@ -2,7 +2,7 @@
 
 @section('container')
 
-    <h1 class="text-center mb-4">Map Your Image</h1>
+    <h1 class="text-center mb-4">Maping Gambar</h1>
 
     <div class="mx-2">
         <div id="map-image-container" class=" w-100 text-center">
@@ -11,7 +11,7 @@
                 @foreach ($areas as $area)
                     <area data-status="{{ $area->status }}" alt="{{ $area->name }},{{ $area->status }}"
                         title="{{ $area->name }}" href="javascript:void(0);" coords="{{ $area->coordinate }}"
-                        shape="{{ $area->shape }}" id="areabutton">
+                        shape="{{ $area->shape }}" desc="{{ $area->description }}" id="areabutton">
                 @endforeach
             </map>
         </div>
@@ -79,10 +79,32 @@
 
     <div id="infoPanel" class="info-panel">
         <span class="close-btn">&times;</span>
-        <div class="p-3">
-            <h4>Information Panel</h4>
-            <p>This is the sliding panel content.</p>
-            <!-- Panel content can be added here -->
+        <div class="p-3 mt-5">
+            <h2>Information Panel</h2>
+            <table class="table table-borderless" id="infoPanelTable">
+                <tbody>
+                    <tr>
+                        <td>Group Name</td>
+                        <td>:</td>
+                        <td>{{ $groupdevice->name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Device Name</td>
+                        <td>:</td>
+                        <td id="area_alt_info"></td>
+                    </tr>
+                    <tr>
+                        <td>Condition</td>
+                        <td>:</td>
+                        <td id="area_status_info"></td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>:</td>
+                        <td id="area_desc_info"></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 

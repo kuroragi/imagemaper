@@ -257,6 +257,7 @@ function updateArea() {
             if (areaId.startsWith('areabutton')) {
                 $('#infoPanel').addClass('show');
                 $('#mainContainer').addClass('shifted');
+                updateInfoPanel($(this));
             } else if (areaId.startsWith('newArea_')) {
                 // Area dengan ID 'newArea_' tidak bisa dipilih
                 return false; // Mencegah area untuk dipilih
@@ -331,4 +332,20 @@ function runCallout() {
             $('#callout').fadeOut(500);
         }, 2000);
     }, 500); // Simulate 1 second delay
+}
+
+function updateInfoPanel(area) {
+    let p = area;
+    console.log(p.attr('desc'));
+    
+    let alt = p.attr('alt').split(",")[0];
+    let status = p.attr('data-status');
+    let desc = p.attr('desc');
+
+    
+
+    $("#infoPanelTable #area_alt_info").html(alt);
+    $("#infoPanelTable #area_status_info").html(status);
+    $("#infoPanelTable #area_desc_info").html(desc);
+    
 }
