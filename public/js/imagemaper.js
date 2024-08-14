@@ -1,4 +1,5 @@
 var selectedCoords = [];
+var newAreasToAdd = [];
 var areasToAdd = [];
 var areaCount = 0;
 var pointClick = 0;
@@ -13,6 +14,11 @@ var timeoutId = 0;
 const selectedAreas = new Set();
 
 function addPoint(x, y, s) {
+    var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
+    var alt = selectedRadio.find('[name^="alt"]').val();
+    var shape = selectedRadio.find('[name^="shape"]').val();
+    var status = selectedRadio.find('[name^="status"]').val();
+    var description = selectedRadio.find('[name^="description"]').val();
     if (s === 'rect') {
         selectedCoords.push({
             x: x,
@@ -24,16 +30,27 @@ function addPoint(x, y, s) {
                 return pt.x + ',' + pt.y;
             }).join(',');
 
-            var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
+            
             if (selectedRadio.length) {
                 selectedRadio.find('[name^="coords"]').val(coords);
             } else {
                 alert('Please select an area to add coordinates.');
             }
 
+            let areaId = selectedRadio.find('[id^="area_id"]').val();
+
+            let newArea = {
+                areaId: areaId,
+                alt: alt,
+                coords: coords,
+                shape: shape,
+                status: status,
+                description: description,
+            };
+
             pointClick = 0;
             selectedCoords = [];
-            runCallout();
+            addArea(newArea);
         }
     } else if (s === 'circle') {
         if (isFirstClickCircle) {
@@ -46,7 +63,6 @@ function addPoint(x, y, s) {
 
             var coords = xOne + ',' + yOne + ',' + radius
 
-            var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
             if (selectedRadio.length) {
                 selectedRadio.find('[name^="coords"]').val(coords);
             } else {
@@ -56,7 +72,6 @@ function addPoint(x, y, s) {
             pointClick = 0;
             isFirstClickCircle = true;
             selectedCoords = [];
-            runCallout();
         }
     } else if (s === 'poly') {
         selectedCoords.push({
@@ -69,7 +84,6 @@ function addPoint(x, y, s) {
                 return pt.x + ',' + pt.y;
             }).join(',');
 
-            var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
             if (selectedRadio.length) {
                 selectedRadio.find('[name^="coords"]').val(coords);
             } else {
@@ -79,7 +93,6 @@ function addPoint(x, y, s) {
             isdblClicked = false;
             pointClick = 0;
             selectedCoords = [];
-            runCallout();
         }else{
             selectedCoords.push({
                 x: x,
@@ -93,11 +106,9 @@ function addAreaRow() {
     areaCount++;
     var newRow = `
         <div class="area-row row">
+            <input type="hidden" id="area_id" value="${areaCount}">
             <div class="col col-1 align-content-center text-center">
-                <input type="radio" name="selected_area" value="${areaCount}">
-            </div>
-            <div class="col col-3 align-content-center text-center">
-                <input type="text" class="form-control" name="alt_${areaCount}" id="alt" placeholder="Name Area" required>
+                <input type="radio" name="selected_area" value="${areaCount}" checked>
             </div>
             <input type="hidden" class="form-control" name="coords_${areaCount}" placeholder="Coordinates" readonly>
             <div class="col col-2 align-content-center text-center">
@@ -115,6 +126,9 @@ function addAreaRow() {
                 </select>
             </div>
             <div class="col col-3 align-content-center text-center">
+                <input type="text" class="form-control" name="alt_${areaCount}" id="alt" placeholder="Name Area" required>
+            </div>
+            <div class="col col-3 align-content-center text-center">
                 <textarea class="form-control" name="description_${areaCount}" placeholder="Description"></textarea>
             </div>
         </div>
@@ -122,17 +136,24 @@ function addAreaRow() {
     $('#form-container').append(newRow);
 }
 
-function addArea() {
-    if(areasToAdd.length > 0){
-        const area_table = document.getElementById("area-table-body");
-        const map_area = document.getElementById("image-map");
-        for (let i = 0; i < areasToAdd.length; i++) {
-            area_table.removeChild(area_table.lastElementChild);
-            map_area.removeChild(map_area.lastElementChild);
-        }
+function addArea(area) {
     
-        // updateArea();
-    };
+    $("#image-map #newArea_"+area.areaId) ? $("#image-map #newArea_"+area.areaId).remove() : '';
+    
+    var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
+
+    if(area.alt == null || area.alt == ''){
+        selectedRadio.find('[name^="coords"]').val('');
+        alert('Nama Area Jangan Ada Yang Kosong.');
+        return;
+    }
+
+    updateMap(area);
+    runCallout();
+    updateArea();
+}
+
+function collectArea() {
 
     areasToAdd = [];
     $('.area-row').each(function() {
@@ -148,11 +169,11 @@ function addArea() {
         //     return false;
         // }
 
-        if(alt == null || alt == ''){
-            areasToAdd = [];
-            alert('Nama Area Jangan Ada Yang Kosong.');
-            return;
-        }
+        // if(alt == null || alt == ''){
+        //     areasToAdd = [];
+        //     alert('Nama Area Jangan Ada Yang Kosong.');
+        //     return;
+        // }
 
         var areaData = {
             alt: alt,
@@ -188,12 +209,8 @@ function addArea() {
         $('#area-table-body').append(newRow);
     });
 
-    updateArea();
-
-    alert('Areas collected. You can now save all areas.');
+    // updateArea();
 }
-
-
 
 function updateArea() {
     $('#map-image').mapster({
@@ -216,26 +233,21 @@ function updateArea() {
                 fillColor: 'ff0000',
                 selected: true,
             }
-        ],// Tetap gunakan singleSelect
-        // onClick: function(e) {
-        //     const key = e.key; // Ambil key area yang dipilih
+        ],
+        onClick: function(e) {
+            const key = e.key; // Ambil key area yang dipilih
+            const areaId = $(this).attr('id'); // Dapatkan ID area yang diklik
 
-        //     if (selectedAreas.has(key)) {
-        //         selectedAreas.delete(key); // Hapus area dari pilihan jika sudah dipilih sebelumnya
-        //     } else {
-        //         selectedAreas.add(key); // Tambahkan area ke pilihan
-        //     }
+            if (areaId.startsWith('areabutton')) {
+                $('#infoPanel').addClass('show');
+                $('#mainContainer').addClass('shifted');
+            } else if (areaId.startsWith('newArea_')) {
+                // Area dengan ID 'newArea_' tidak bisa dipilih
+                return false; // Mencegah area untuk dipilih
+            }
 
-        //     // Reset semua area terlebih dahulu
-        //     $('#map-image').mapster('deselect');
-
-        //     // Set semua area yang ada di dalam selectedAreas
-        //     selectedAreas.forEach(areaKey => {
-        //         $('#map-image').mapster('set', true, areaKey);
-        //     });
-
-        //     return false; // Menghentikan event handler default dari mapster
-        // },
+            return true; // Biarkan Mapster melakukan default action-nya
+        },
         onConfigured: function() {
             $('#map-image').mapster('set', ['kosong,baik,rusak']);
         }
@@ -287,7 +299,7 @@ function updateMap(area) {
     var areaRow = `
     <area data-status="${area.status}" alt="${area.alt},${area.status}"
                 title="${area.alt}" href="javascript:void(0);" coords="${area.coords}"
-                shape="${area.shape}">
+                shape="${area.shape}" id="newArea_${area.areaId}">
     `;
     $('#image-map').append(areaRow);
 }

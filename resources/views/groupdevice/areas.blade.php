@@ -11,7 +11,7 @@
                 @foreach ($areas as $area)
                     <area data-status="{{ $area->status }}" alt="{{ $area->name }},{{ $area->status }}"
                         title="{{ $area->name }}" href="javascript:void(0);" coords="{{ $area->coordinate }}"
-                        shape="{{ $area->shape }}" id="area-button">
+                        shape="{{ $area->shape }}" id="areabutton">
                 @endforeach
             </map>
         </div>
@@ -23,14 +23,14 @@
                 <div class="col col-1 align-content-center text-bold">
                     Aktif
                 </div>
-                <div class="col col-3 align-content-center text-bold">
-                    Nama Area
-                </div>
                 <div class="col col-2 align-content-center text-bold">
                     Shape
                 </div>
                 <div class="col col-2 align-content-center text-bold">
                     Status
+                </div>
+                <div class="col col-3 align-content-center text-bold">
+                    Nama Area
                 </div>
                 <div class="col col-3 align-content-center text-bold">
                     Deskripsi
@@ -42,7 +42,7 @@
 
     <div class="my-4">
         <button id="add-area-btn" type="button" class="btn btn-primary mb-3">Add Area</button>
-        <button type="button" onclick="addArea()" class="btn btn-primary mb-3">Collect Areas</button>
+        {{-- <button type="button" onclick="collectArea()" class="btn btn-primary mb-3">Collect Areas</button> --}}
         <button id="save-area-btn" type="button" onclick="saveAreas()" class="btn btn-success mb-3">Save
             Areas</button>
     </div>
@@ -93,13 +93,17 @@
 
     <script>
         function saveAreas() {
+            collectArea();
+            
             if (areasToAdd.length === 0) {
                 alert('No areas to save.');
                 return;
             }
 
+
             // Debugging log to check areasToAdd
             console.log('Areas to add:', areasToAdd);
+
 
             $.ajax({
                 url: '/imagemap',
@@ -123,11 +127,6 @@
                 }
             });
         }
-
-        $('#image-map').on('click', '#area-button', function(){
-            $('#infoPanel').addClass('show');
-            $('#mainContainer').addClass('shifted');
-        });
 
         $('.close-btn').click(function(){
             $('#infoPanel').removeClass('show');
@@ -194,9 +193,10 @@
                 if (!selectedRadio.length) {
                     pointClick = 0;
                     alert('Please select an area to add coordinates.');
+                    return;
                 }
                 var shape = selectedRadio.find('select[name^="shape_"]').val();
-                // console.log(shape);
+                // console.log(selectedRadio);
 
 
                 selectedRadioCheck(x, y, pointClick, shape);

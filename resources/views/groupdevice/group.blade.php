@@ -9,9 +9,11 @@
         </thead>
         <tbody>
             @foreach ($group as $g)
-                <th>{{ $g->name }}</th>
-                <th><img src="/img/gdevice/{{ $g->image }}" width="100" alt=""></th>
-                <th><a href="/groupdevice/{{ $g->id }}">detail</a></th>
+                <tr>
+                    <th>{{ $g->name }}</th>
+                    <th><img src="/img/gdevice/{{ $g->image }}" width="100" alt=""></th>
+                    <th><a href="/groupdevice/{{ $g->id }}">detail</a></th>
+                </tr>
             @endforeach
         </tbody>
     </table>
