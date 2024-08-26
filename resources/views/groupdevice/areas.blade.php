@@ -14,8 +14,10 @@
                         shape="{{ $area->shape }}" desc="{{ $area->description }}" id="areabutton{{ $area->id }}">
                 @endforeach
             </map>
+            <div id="nodeContainer"></div>
         </div>
     </div>
+
 
     <div class="row justify-content-center my-3">
         <div id="form-container" class="col-12 mt-3">
@@ -43,7 +45,7 @@
     <div class="my-4">
         <button id="add-area-btn" type="button" class="btn btn-primary mb-3">Add Area</button>
         {{-- <button type="button" onclick="collectArea()" class="btn btn-primary mb-3">Collect Areas</button> --}}
-        <button id="save-area-btn" type="button" onclick="saveAreas()" class="btn btn-success mb-3">Save
+        <button id="save-area-btn" type="button" onclick="saveAreas('+{{ $groupdevice->id }}+')" class="btn btn-success mb-3">Save
             Areas</button>
     </div>
 
@@ -151,11 +153,44 @@
             });
         });
 
+        let image = document.getElementById('map-image');
+        let nodeContainer = document.getElementById('nodeContainer');
+        let coordinates = []; // Array untuk menyimpan koordinat klik
+
         $(document).ready(function() {
             $('#map-image').on('click', function(e) {
+
+
+                // Dimensi asli gambar
+                var originalWidth = this.naturalWidth;
+                var originalHeight = this.naturalHeight;
+
+                // Dimensi tampilan gambar
+                var displayedWidth = $(this).width();
+                var displayedHeight = $(this).height();
+
+                // Hitung skala
+                var scaleX = originalWidth / displayedWidth;
+                var scaleY = originalHeight / displayedHeight;
+
+                // Koordinat klik dalam dimensi tampilan
                 var offset = $(this).offset();
-                var x = e.pageX - offset.left;
-                var y = e.pageY - offset.top;
+                var clickX = e.pageX - offset.left;
+                var clickY = e.pageY - offset.top;
+
+                // Sesuaikan koordinat untuk dimensi asli
+                var x = clickX * scaleX;
+                var y = clickY * scaleY;
+
+                var displayX = x / scaleX;
+                var displayY = y / scaleY;
+
+                // Koordinat yang disesuaikan sesuai gambar asli
+                // console.log("Adjusted coordinates:", realX, realY);
+
+                // var offset = $(this).offset();
+                // var x = e.pageX - offset.left;
+                // var y = e.pageY - offset.top;
                 pointClick++;
                 // if (isFirstClick) {
                 //     // Simpan koordinat klik pertama
@@ -223,6 +258,7 @@
                 var shape = selectedRadio.find('select[name^="shape_"]').val();
                 // console.log(selectedRadio);
 
+                createNode(displayX, displayY);
 
                 selectedRadioCheck(x, y, pointClick, shape);
             });

@@ -12,6 +12,7 @@ let isdblClicked = false;
 let firstX, firstY, $newArea, xOne, yOne;
 var timeoutId = 0;
 const selectedAreas = new Set();
+const _newNode = 'newNode';
 
 function addPoint(x, y, s) {
     var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
@@ -164,6 +165,8 @@ function addArea(area) {
     
     $("#image-map #newArea_"+area.areaId) ? $("#image-map #newArea_"+area.areaId).remove() : '';
 
+    $("#node-container #new-node-"+area.areaId) ? $("#node-container #new-node-"+area.areaId+"-"+pointClick).remove() : '';
+
     updateMap(area);
     runCallout();
     updateArea();
@@ -229,7 +232,7 @@ function collectArea() {
 }
 
 
-function saveAreas() {
+function saveAreas(groupId) {
     collectArea();
 
     if (areasToAdd.length === 0) {
@@ -246,9 +249,9 @@ function saveAreas() {
         url: '/imagemap',
         type: 'POST',
         data: {
-            group_id: '{{ $groupdevice->id }}',
+            group_id: groupId,
             areas: areasToAdd,
-            _token: '{{ csrf_token() }}'
+            // _token: '{{ csrf_token() }}'
         },
         success: function(data) {
             // console.log(data);
@@ -311,8 +314,10 @@ function updateArea() {
         },
         onConfigured: function() {
             $('#map-image').mapster('set', ['kosong,baik,rusak']);
-        }
+        },
     });
+
+    // $("#map-image").mapster('rebind', true);
 }
 
 function updateTable(area) {
@@ -393,3 +398,87 @@ function updateInfoPanel(area) {
     $("#infoPanelTable #area_desc_info").html(desc);
     
 }
+
+function createNode(x, y){
+    var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
+
+    let areaId = selectedRadio.find('[id^="area_id"]').val();
+
+    const ID = _newNode+'-'+areaId+'-'+pointClick;
+
+    // buat elemen node
+    var node = $("<div id='"+ID+"' class='node'></div>");
+
+    // Atur posisi node berdasarkan klik
+    node.css({
+        'top': (y - 5) + 'px',
+        'left': (x - 5) + 'px',
+    });
+
+    $("#map-image-container").append(node);
+
+    // createDraggableNode(ID);
+
+}
+
+// function createDraggableNode(nodeID){
+//     $("#"+nodeID).draggable({
+//         containment: "#map-container", // Pastikan node tetap berada dalam batas gambar
+//         drag: function(event, ui){
+//             updateCoordsFromNode(nodeID, ui.position)
+//         }
+//     }).resizable({
+//         aspecRatio: true, // Menjaga proporsi saat di-resize
+//         handles: "all",
+//         resize: function(event, ui){
+//             updateCoordsFromNode(nodeID, ui.size, ui.position);
+//         }
+
+//     })
+// }
+
+// function updateCoordsFromNode(nodeID, position){
+//     // Memperbarui koordinat berdasarkan posisi node yang di-drag
+//     const x = position.left;
+//     const y = position.top;
+//     $("input[name='coords_"+nodeID+"']").val(x+","+y);
+// }
+
+// function updateAreaFromNode(nodeID, size, position){
+//     // Memperbaruin area pada peta berdasarkan ukuran dan posisi node yang di-resize
+//     const width = size.width;
+//     const height = size.height;
+//     const x = position.left;
+//     const y = position.top;
+
+//     $("input[name='coords_"+nodeID+"']").val(x + "," + y + "," + (x + width) + "," + (y + height));
+// }
+
+// $(".node").draggable({
+//     containment: "#map-image",
+//     drag: function(event, ui){
+//         updateNodeCoordinate(ui.helper);
+//         // Update coordinate node sesuai dengan posisi baru
+//     },
+//     stop: function(event, ui){
+//         // Lakukan resize area berdasarkan posisi akhir node
+//         resizeArea(ui.helper);
+//     }
+// });
+
+// function resizeArea(node){
+//     const nodePosition = node.position;
+//     const area_id = node.data('area-id'); // Dapatkan ID Area yang terhubung dengan node
+//     const shape = node.data('shape'); // Dapatkan shape dari area (rectangle, triangle, polygon)
+
+//     // if(shape === 'rectangle'){
+        
+//     // }else if(shape === 'triangle'){
+
+//     // }else if(shape === 'polygon'){
+
+//     // }
+
+//     // Setelah update, perbarui tampilan mapster
+//     $('#map-image').mapster('rebind', true);
+// }
