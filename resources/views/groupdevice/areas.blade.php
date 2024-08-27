@@ -6,8 +6,8 @@
 
     <div class="mx-2">
         <div id="map-image-container" class=" w-100 text-center">
-            <img id="map-image" src="/img/gdevice/{{ $groupdevice->image }}" class="img-fluid rounded shadow" usemap="#image-map">
-            <map name="image-map" id="image-map">
+            <img id="map-image" src="/img/gdevice/{{ $groupdevice->image }}" class="img-fluid rounded shadow" usemap="#areaContainer">
+            <map name="areaContainer" id="areaContainer">
                 @foreach ($areas as $area)
                     <area data-status="{{ $area->status }}" alt="{{ $area->name }},{{ $area->status }}"
                         title="{{ $area->name }}" href="javascript:void(0);" coords="{{ $area->coordinate }}"
@@ -142,7 +142,7 @@
                 },
                 success: function(data) {
                     // console.log(data);
-                    $("#image-map #areabutton"+data.id).remove();
+                    $("#areaContainer #areabutton"+data.id).remove();
                     $("#area-table-body #tr"+data.id).remove();
 
                     updateArea();
@@ -153,15 +153,11 @@
             });
         });
 
-        let image = document.getElementById('map-image');
-        let nodeContainer = document.getElementById('nodeContainer');
-        let coordinates = []; // Array untuk menyimpan koordinat klik
-
         $(document).ready(function() {
+            
             $('#map-image').on('click', function(e) {
 
-
-                // Dimensi asli gambar
+                // Dimensi asli gambar #map-image
                 var originalWidth = this.naturalWidth;
                 var originalHeight = this.naturalHeight;
 
@@ -182,85 +178,34 @@
                 var x = clickX * scaleX;
                 var y = clickY * scaleY;
 
-                var displayX = x / scaleX;
-                var displayY = y / scaleY;
+                // Sesuaikan kembali koordinat dengan dimensi gambar
+                // var displayX = x / scaleX;
+                // var displayY = y / scaleY;
 
-                // Koordinat yang disesuaikan sesuai gambar asli
-                // console.log("Adjusted coordinates:", realX, realY);
-
-                // var offset = $(this).offset();
-                // var x = e.pageX - offset.left;
-                // var y = e.pageY - offset.top;
                 pointClick++;
-                // if (isFirstClick) {
-                //     // Simpan koordinat klik pertama
-                //     firstX = x;
-                //     firstY = y;
 
-                //     // Buat elemen baru yang dapat di-drag dan resize
-                //     $newArea = $('<div></div>')
-                //         .css({
-                //             position: 'absolute',
-                //             left: `${firstX}px`,
-                //             top: `${firstY}px`,
-                //             width: '10px',
-                //             height: '10px',
-                //             backgroundColor: 'rgba(128, 128, 128, 0.75)',
-                //             border: '1px solid #000'
-                //         })
-                //         .appendTo('#map-image-container') // Sesuaikan dengan container gambar Anda
-                //         .draggable({
-                //             containment: '#map-image-container',
-                //             stop: function(event, ui) {
-                //                 // Update koordinat ketika elemen dipindahkan
-                //                 updateCoords(ui.helper);
-                //             }
-                //         })
-                //         .resizable({
-                //             containment: '#map-image-container',
-                //             stop: function(event, ui) {
-                //                 // Update koordinat ketika elemen diubah ukurannya
-                //                 updateCoords(ui.helper);
-                //             }
-                //         });
+                let selectedRadio = getCheckedRadio();
+                let activeRow = getActiveRow();
 
-                //     isFirstClick = false;
-                // } else {
-                //     // Klik kedua: hitung ukuran berdasarkan klik kedua dan tambahkan area
-                //     const width = Math.abs(x - firstX);
-                //     const height = Math.abs(y - firstY);
-
-                //     $newArea.css({
-                //         width: `${width}px`,
-                //         height: `${height}px`
-                //     });
-
-                //     // Update koordinat input
-                //     updateCoords($newArea);
-
-                //     // Reset status klik
-                //     isFirstClick = true;
-                // }
-                var selectedRadio = $('#form-container input[type="radio"]:checked').closest('.area-row');
                 if (!selectedRadio.length) {
                     pointClick = 0;
                     alert('Please select an area to add coordinates.');
                     return;
                 }
 
-                var alt = selectedRadio.find('[name^="alt"]').val();
+                var alt = activeRow.find('[name^="alt"]').val();
                 if (alt == null || alt == '') {
                     pointClick = 0;
                     alert('Nama Area Masih Kosong, Mohon Diisi');
                     return;
-                }
+                }                
 
-                var shape = selectedRadio.find('select[name^="shape_"]').val();
+                var shape = activeRow.find('select[name^="shape_"]').val();
                 // console.log(selectedRadio);
 
-                createNode(displayX, displayY);
+                createNode(clickX, clickY, selectedRadio);
 
-                selectedRadioCheck(x, y, pointClick, shape);
+                addPoint(x, y, shape, activeRow);
             });
 
             $('#map-image').on('mousedown', function() {
