@@ -166,8 +166,8 @@
                 var displayedHeight = $(this).height();
 
                 // Hitung skala
-                var scaleX = originalWidth / displayedWidth;
-                var scaleY = originalHeight / displayedHeight;
+                scaleX = originalWidth / displayedWidth;
+                scaleY = originalHeight / displayedHeight;
 
                 // Koordinat klik dalam dimensi tampilan
                 var offset = $(this).offset();

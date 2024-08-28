@@ -1,5 +1,5 @@
 const image = $('#map-image');
-const mapContainer = $('#areaContainer')
+const areaContainer = $('#areaContainer')
 const nodeContainer = $('#nodeContainer');
 const selectedAreas = new Set();
 const _newNode = 'newNode_';
@@ -7,6 +7,8 @@ const _newArea = 'newArea_';
 const rectNode = 2,
     circleNode = 2;
 
+let scaleX;
+let scaleY;
 let selectedCoords = [];
 let newAreasToAdd = [];
 let areasToAdd = [];
@@ -179,7 +181,7 @@ function addArea(area) {
 
     $("#nodeContainer #new-node-"+area.areaId) ? $("#nodeContainer #new-node-"+area.areaId+"-"+pointClick).remove() : '';
 
-    updateMap(area);
+    addMap(area);
     runCallout();
     updateArea();
 }
@@ -225,7 +227,7 @@ function collectArea() {
 
     // Tambahkan area ke peta dengan warna abu-abu
     areasToAdd.forEach(area => {
-        updateMap(area);
+        addMap(area);
 
         let newRow = `
             <tr>
@@ -355,7 +357,7 @@ function updateCoords($element) {
     // $('input[name="coords_' + $('input[name="selected_area"]:checked').val() + '"]').val(coords);
 }
 
-function updateMap(area) {
+function addMap(area) {
     let areaRow = `
     <area data-status="${area.status}" alt="${area.alt},${area.status}"
                 title="${area.alt}" href="javascript:void(0);" coords="${area.coords}"
@@ -401,7 +403,7 @@ function createNode(x, y, selectedRadio){
     const ID = _newNode+areaId+'_'+pointClick;
 
     // buat elemen node
-    let node = $("<div id='"+ID+"' class='node'></div>");
+    let node = $("<div id='"+ID+"' x='"+x+"'  y='"+y+"' class='node'></div>");
 
     console.log(x-5+', '+y-5);
     
@@ -414,15 +416,15 @@ function createNode(x, y, selectedRadio){
 
     $("#nodeContainer").append(node);
 
-    createDraggableNode(ID);
+    createDraggableNode(ID, areaId);
 
 }
 
-function createDraggableNode(nodeID){
+function createDraggableNode(nodeID, areaID){
     $("#"+nodeID).draggable({
         containment: "#map-image-container", // Pastikan node tetap berada dalam batas gambar
-        drag: function(event, ui){
-            updateCoordsFromNode(nodeID, ui.position)
+        stop: function(event, ui){
+            updateCoordsFromNode(areaID)
         }
     })
     // .resizable({
@@ -435,15 +437,36 @@ function createDraggableNode(nodeID){
     // })
 }
 
-function updateCoordsFromNode(nodeID, position){
+function updateCoordsFromNode(areaID){
+    let nodes = $("#nodeContainer").find("[id*='newNode_"+areaID+"_']");
+
+    nodes.map(function (index, element) {
+        let x = $(element).css('left').replace('px', '') * scaleX + 5;
+        let y = $(element).css('top').replace('px', '') * scaleY + 5;
+        addSelectedCoords(x, y);
+    });
+
+    let newCoords = selectedCoords.map(function(pt) {
+        return pt.x + ',' + pt.y;
+    }).join(',');
+
+    getActiveRow().find('[name^="coords"]').val(newCoords)
+
+    resetSelectedCoords();
+    updateCoordsArea(newCoords, areaID);
+    
+    // let newCoords = nodes.map(function(pt) {
+    //     console.log(pt.attr('x'));
+        
+    // });
+    
+    
     // Memperbarui koordinat berdasarkan posisi node yang di-drag
-    const x = position.left;
-    const y = position.top;
+    // const x = position.left;
+    // const y = position.top;
 
-    let _coords = getActiveRow().find('[name^="coords"]').val()
-    $("input[name='coords_"+nodeID+"']").val(x+","+y);
-
-    updateArea();
+    // let _coords = getActiveRow().find('[name^="coords"]').val()
+    // $("input[name='coords_"+nodeID+"']").val(x+","+y);
 }
 
 // function updateAreaFromNode(nodeID, size, position){
@@ -512,3 +535,20 @@ function getActiveRow(){
     return $('#form-container input[type="radio"]:checked').closest('.area-row');
 }
 
+function updateCoordsArea(_coords, areaID){
+    let alt = getActiveRow().find('[name^="alt"]').val();
+    let shape = getActiveRow().find('[name^="shape"]').val();
+    let status = getActiveRow().find('[name^="status"]').val();
+    let description = getActiveRow().find('[name^="description"]').val();
+
+    let newArea = {
+        alt: alt,
+        shape: shape,
+        status: status,
+        description: description,
+        areaId: areaID,
+        coords: _coords
+    };
+
+    addArea(newArea);
+}
