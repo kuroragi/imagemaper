@@ -15,7 +15,7 @@ class CreateImagemapsTable extends Migration
     {
         Schema::create('imagemaps', function (Blueprint $table) {
             $table->id();
-            $table->string('group_id');
+            $table->string('id_group');
             $table->string('coordinate');
             $table->string('name');
             $table->text('description')->nullable();
@@ -23,7 +23,7 @@ class CreateImagemapsTable extends Migration
             $table->string('status');
             $table->string('meta')->nullable();
             $table->string('shape');
-            $table->string('device_id')->nullable();
+            $table->string('id_asset')->nullable();
             $table->timestamps();
         });
     }

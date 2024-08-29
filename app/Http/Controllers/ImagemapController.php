@@ -38,7 +38,7 @@ class ImagemapController extends Controller
     {
         // return response()->json($request);
         foreach ($request->areas as $area) {
-            $data = ['group_id' => $request->group_id, 'name' => $area['alt'], 'coordinate' => $area['coords'], 'shape' => $area['shape'], 'status' => $area['status'], 'description' => $area['description']];
+            $data = ['id_group' => $request->id_group, 'name' => $area['alt'], 'coordinate' => $area['coords'], 'shape' => $area['shape'], 'status' => $area['status'], 'description' => $area['description'], 'id_asset' => $area['id_asset']];
 
             Imagemap::create($data);
         }

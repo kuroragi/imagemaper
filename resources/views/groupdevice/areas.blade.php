@@ -21,20 +21,23 @@
 
     <div class="row justify-content-center my-3">
         <div id="form-container" class="col-12 mt-3">
-            <div class="row border-bottom">
+            <div class="row border-bottom pb-2">
                 <div class="col col-1 align-content-center text-bold">
                     Aktif
                 </div>
-                <div class="col col-2 align-content-center text-bold">
+                <div class="col col-1 align-content-center text-bold">
                     Shape
                 </div>
                 <div class="col col-2 align-content-center text-bold">
                     Status
                 </div>
-                <div class="col col-3 align-content-center text-bold">
+                <div class="col col-2 align-content-center text-bold">
                     Nama Area
                 </div>
-                <div class="col col-3 align-content-center text-bold">
+                <div class="col col-2 align-content-center text-bold">
+                    Asset
+                </div>
+                <div class="col col-4 align-content-center text-bold">
                     Deskripsi
                 </div>
             </div>
@@ -72,7 +75,7 @@
                             <td>{{ $area->coordinate }}</td>
                             <td>{{ $area->shape }}</td>
                             <td>{{ $area->status }}</td>
-                            <td>{{ $area->description }}</td>
+                            <td class="text-wrap" style="width: 30%;">{{ $area->description }}</td>
                             <td class="text-danger text-center">
                                 <form action="/imagemape/{{ $area->id }}" action="post">
                                     @csrf 

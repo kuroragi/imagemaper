@@ -5,19 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Imagemap extends Model
+class Asset extends Model
 {
+    use HasFactory;
+
     protected $guarded = ['id'];
 
     protected $fillable = [
-        'id_group',
-        'coordinate',
         'name',
-        'description',
-        'device_type',
-        'status',
-        'meta',
-        'shape',
-        'id_asset',
+        'SN',
+        'id_group_device',
+        'id_status',
     ];
 }

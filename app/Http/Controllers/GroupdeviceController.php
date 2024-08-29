@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Groupdevice;
 use App\Http\Controllers\Controller;
+use App\Models\Asset;
 use App\Models\Imagemap;
 use Illuminate\Http\Request;
 
@@ -76,11 +77,13 @@ class GroupdeviceController extends Controller
      */
     public function show(Groupdevice $groupdevice)
     {
-        $areas = Imagemap::where('group_id', $groupdevice->id)->get();
+        $areas = Imagemap::where('id_group', $groupdevice->id)->get();
+        $asset = Asset::groupBy('name')->get();
         // dd($areas);
         return view('groupdevice.areas', [
             'groupdevice' => $groupdevice,
             'areas' => $areas,
+            'asset' => $asset,
         ]);
     }
 

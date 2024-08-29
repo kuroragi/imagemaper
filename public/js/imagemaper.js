@@ -138,33 +138,47 @@ function addPoint(x, y, shape, selectedRadio) {
 
 function addAreaRow() {
     areaCount++;
+    let assetOption = assetData.map(asset => `<option value="${asset}">${asset.name}</option>`).join('');
     let newRow = `
         <div class="area-row row" id="area-row-${areaCount}">
             <input type="hidden" id="area_id" value="${areaCount}">
+
             <div class="col col-1 align-content-center text-center">
                 <input type="radio" name="selected_area" value="${areaCount}" checked>
             </div>
+
             <input type="hidden" class="form-control" name="coords_${areaCount}" placeholder="Coordinates" readonly>
-            <div class="col col-2 align-content-center text-center">
+
+            <div class="col col-1 align-content-center text-center">
                 <select class="form-control" name="shape_${areaCount}">
                     <option value="rect">Rectangle</option>
                     <option value="circle">Circle</option>
                     <option value="poly">Polygon</option>
                 </select>
             </div>
-            <div class="col col-1 align-content-center text-center">
+
+            <div class="col col-2 align-content-center text-center">
                 <select class="form-control" name="status_${areaCount}" id="status">
                     <option value="kosong">Kosong</option>
                     <option value="baik">Baik</option>
                     <option value="rusak">Rusak</option>
                 </select>
             </div>
-            <div class="col col-3 align-content-center text-center">
+
+            <div class="col col-2 align-content-center text-center">
                 <input type="text" class="form-control" name="alt_${areaCount}" id="alt" placeholder="Name Area" required>
             </div>
+
+            <div class="col col-2 align-content-center text-center">
+                <select class="form-control" name="asset_${areaCount}" id="asset">
+                    ${assetOption}
+                </select>
+            </div>
+
             <div class="col col-3 align-content-center text-center">
                 <textarea class="form-control" name="description_${areaCount}" placeholder="Description"></textarea>
             </div>
+
             <div class="col col-1 align-content-center text-center">
                 <button class="btn btn-danger" id="removeArea" areaID="${areaCount}"><i class="fa fa-circle-xmark"></i></button>
             </div>
@@ -191,6 +205,7 @@ function collectArea() {
         // let formData = $(this).find('input, select, textarea').serializeArray();
         let alt = $(this).find('[name^="alt"]').val();
         let coords = $(this).find('[name^="coords"]').val();
+        let id_asset = $(this).find('[name^="asset"]').val();
         let shape = $(this).find('[name^="shape"]').val();
         let status = $(this).find('[name^="status"]').val();
         let description = $(this).find('[name^="description"]').val();
@@ -209,6 +224,7 @@ function collectArea() {
         let areaData = {
             alt: alt,
             coords: coords,
+            id_asset: id_asset,
             shape: shape,
             status: status,
             description: description
@@ -261,7 +277,7 @@ function saveAreas(groupId) {
         url: '/imagemap',
         type: 'POST',
         data: {
-            group_id: groupId,
+            id_group: groupId,
             areas: areasToAdd,
             // _token: '{{ csrf_token() }}'
         },

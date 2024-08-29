@@ -19,7 +19,10 @@
 
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/imagemaper.js"></script>
+    <script type="text/javascript">
+        let assetData = @json($asset ?? []);
+    </script>
+    <script src="/js/imagemaper.js" defer></script>
 
     <style>
         .area-row {
