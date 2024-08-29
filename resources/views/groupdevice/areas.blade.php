@@ -153,6 +153,11 @@
             });
         });
 
+        $("#form-container").on("click", "#removeArea", function(){
+            let areaID = $(this).attr("areaID");
+            removeArea(areaID);
+        })
+
         $(document).ready(function() {
             
             $('#map-image').on('click', function(e) {

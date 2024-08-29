@@ -139,12 +139,12 @@ function addPoint(x, y, shape, selectedRadio) {
 function addAreaRow() {
     areaCount++;
     let newRow = `
-        <div class="area-row row">
+        <div class="area-row row" id="area-row-${areaCount}">
             <input type="hidden" id="area_id" value="${areaCount}">
             <div class="col col-1 align-content-center text-center">
                 <input type="radio" name="selected_area" value="${areaCount}" checked>
             </div>
-            <input type="text" class="form-control" name="coords_${areaCount}" placeholder="Coordinates" readonly>
+            <input type="hidden" class="form-control" name="coords_${areaCount}" placeholder="Coordinates" readonly>
             <div class="col col-2 align-content-center text-center">
                 <select class="form-control" name="shape_${areaCount}">
                     <option value="rect">Rectangle</option>
@@ -166,7 +166,7 @@ function addAreaRow() {
                 <textarea class="form-control" name="description_${areaCount}" placeholder="Description"></textarea>
             </div>
             <div class="col col-1 align-content-center text-center">
-                <button class="btn btn-danger"><i class="fa fa-x-mark"></i></button>
+                <button class="btn btn-danger" id="removeArea" areaID="${areaCount}"><i class="fa fa-circle-xmark"></i></button>
             </div>
         </div>
     `;
@@ -571,4 +571,14 @@ function updateCoordsArea(_coords, areaID){
 
 function radiusCalc(x, y){
     return Math.sqrt(Math.pow(x - xOne, 2) + Math.pow(y - yOne, 2));
+}
+
+function removeArea(areaID){
+    $("#areaContainer #newArea_"+areaID).remove();
+    let nodes = $("#nodeContainer").find("[id*='newNode_"+areaID+"_']");
+    nodes.map(function(index, element){
+        element.remove();
+    });
+    $("#area-row-"+areaID).remove();
+    updateArea();
 }
