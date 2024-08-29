@@ -77,9 +77,7 @@ function addPoint(x, y, shape, selectedRadio) {
 
             isFirstClickCircle = false;
         } else if (pointClick === circleNode && isFirstClickCircle === false) {
-            const radius = Math.sqrt(Math.pow(x - xOne, 2) + Math.pow(y - yOne, 2));
-
-            let coords = xOne + ',' + yOne + ',' + radius
+            let coords = xOne + ',' + yOne + ',' + radiusCalc(x, y);
 
             if (selectedRadio.length) {
                 selectedRadio.find('[name^="coords"]').val(coords);
@@ -438,17 +436,35 @@ function createDraggableNode(nodeID, areaID){
 }
 
 function updateCoordsFromNode(areaID){
+    let areaShape = $("#areaContainer").find("[id*='newArea_"+areaID+"']").attr('shape');
     let nodes = $("#nodeContainer").find("[id*='newNode_"+areaID+"_']");
 
-    nodes.map(function (index, element) {
-        let x = $(element).css('left').replace('px', '') * scaleX + 5;
-        let y = $(element).css('top').replace('px', '') * scaleY + 5;
-        addSelectedCoords(x, y);
-    });
+    let newCoords;
+    if(areaShape === 'circle'){
+        nodes.map(function (index, element) {
+            if(index === 0){
+                xOne = $(element).css('left').replace('px', '') * scaleX + 5;
+                yOne = $(element).css('top').replace('px', '') * scaleY + 5;
+            }else{
+                let x = $(element).css('left').replace('px', '') * scaleX + 5;
+                let y = $(element).css('top').replace('px', '') * scaleY + 5;
+                
+                newCoords = xOne+","+yOne+","+radiusCalc(x, y);
+            }
+            
+        });
+    }else{
+        nodes.map(function (index, element) {
+            let x = $(element).css('left').replace('px', '') * scaleX + 5;
+            let y = $(element).css('top').replace('px', '') * scaleY + 5;
+            addSelectedCoords(x, y);
+        });
+        
+        newCoords = selectedCoords.map(function(pt) {
+            return pt.x + ',' + pt.y;
+        }).join(',');
+    }
 
-    let newCoords = selectedCoords.map(function(pt) {
-        return pt.x + ',' + pt.y;
-    }).join(',');
 
     getActiveRow().find('[name^="coords"]').val(newCoords)
 
@@ -551,4 +567,8 @@ function updateCoordsArea(_coords, areaID){
     };
 
     addArea(newArea);
+}
+
+function radiusCalc(x, y){
+    return Math.sqrt(Math.pow(x - xOne, 2) + Math.pow(y - yOne, 2));
 }
