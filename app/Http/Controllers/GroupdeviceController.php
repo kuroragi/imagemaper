@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CPU\Helpers;
 use App\Models\Groupdevice;
 use App\Http\Controllers\Controller;
 use App\Models\Asset;
@@ -17,7 +18,9 @@ class GroupdeviceController extends Controller
      */
     public function index()
     {
-        $group = Groupdevice::all();
+        // $group = Groupdevice::all();
+        $group = Helpers::getGroup()['data'];
+        // dd($group);
         return view('groupdevice.group', [
             'group' => $group,
         ]);

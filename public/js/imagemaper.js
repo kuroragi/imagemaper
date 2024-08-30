@@ -149,7 +149,7 @@ function addAreaRow() {
 
             <input type="hidden" class="form-control" name="coords_${areaCount}" placeholder="Coordinates" readonly>
 
-            <div class="col col-1 align-content-center text-center">
+            <div class="col col-1 align-content-center text-center" required>
                 <select class="form-control" name="shape_${areaCount}">
                     <option value="rect">Rectangle</option>
                     <option value="circle">Circle</option>
@@ -158,7 +158,7 @@ function addAreaRow() {
             </div>
 
             <div class="col col-2 align-content-center text-center">
-                <select class="form-control" name="status_${areaCount}" id="status">
+                <select class="form-control" name="status_${areaCount}" id="status" required>
                     <option value="kosong">Kosong</option>
                     <option value="baik">Baik</option>
                     <option value="rusak">Rusak</option>
@@ -171,12 +171,13 @@ function addAreaRow() {
 
             <div class="col col-2 align-content-center text-center">
                 <select class="form-control" name="asset_${areaCount}" id="asset">
+                    <option value="">Tidak Ada Asset</option>
                     ${assetOption}
                 </select>
             </div>
 
             <div class="col col-3 align-content-center text-center">
-                <textarea class="form-control" name="description_${areaCount}" placeholder="Description"></textarea>
+                <textarea class="form-control" name="description_${areaCount}" placeholder="Description" required></textarea>
             </div>
 
             <div class="col col-1 align-content-center text-center">

@@ -11,7 +11,8 @@
             @foreach ($group as $g)
                 <tr>
                     <th class="align-content-center">{{ $g->name }}</th>
-                    <th><img src="/img/gdevice/{{ $g->image }}" width="100" alt=""></th>
+                    {{-- <th><img src="/img/gdevice/{{ $g->image }}" width="100" alt=""></th> --}}
+                    <th><img src="{{ $g->image }}" width="100" alt=""></th>
                     <th class="align-content-center text-center"><a href="/groupdevice/{{ $g->id }}">detail</a></th>
                 </tr>
             @endforeach
