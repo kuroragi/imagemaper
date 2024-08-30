@@ -6,7 +6,7 @@
 
     <div class="mx-2">
         <div id="map-image-container" class=" w-100 text-center">
-            <img id="map-image" src="/img/gdevice/{{ $groupdevice->image }}" class="img-fluid rounded shadow" usemap="#areaContainer">
+            <img id="map-image" src="{{ $groupdevice->image }}" class="img-fluid rounded shadow" usemap="#areaContainer">
             <map name="areaContainer" id="areaContainer">
                 @foreach ($areas as $area)
                     <area data-status="{{ $area->status }}" alt="{{ $area->name }},{{ $area->status }}"
@@ -15,9 +15,9 @@
                 @endforeach
             </map>
             <div id="nodeContainer">
-                @foreach ($nodes as $node)
-                    <div id='{{ $node['nodeName'] }}' x='{{ $node['x'] }}'  y='{{ $node['y'] }}' class='node' style="top:{{ $node['y'] - 5 }}px; left:{{ $node['x'] - 5 }}px"></div>
-                @endforeach
+                {{-- @foreach ($nodes as $node)
+                <div id='{{ $node->nodeName }}' x='{{ $node->x }}'  y='{{ $node->y }}' class='node' style="top:{{ node->y - 5 }}px; left:{{ node->x - 5 }}px"></div>
+                @endforeach --}}
             </div>
         </div>
     </div>
@@ -52,7 +52,7 @@
     <div class="my-4">
         <button id="add-area-btn" type="button" class="btn btn-primary mb-3">Add Area</button>
         {{-- <button type="button" onclick="collectArea()" class="btn btn-primary mb-3">Collect Areas</button> --}}
-        <button id="save-area-btn" type="button" onclick="saveAreas('+{{ $groupdevice->id }}+')" class="btn btn-success mb-3">Save
+        <button id="save-area-btn" type="button" onclick="saveAreasApi('{{ $groupdevice->id }}')" class="btn btn-success mb-3">Save
             Areas</button>
     </div>
 
@@ -142,11 +142,11 @@
         $("#area-table-body").on("click", "#deleteareabutton", function(){
             let kode = $(this).attr('kode');
             $.ajax({
-                url: '/imagemap/'+kode,
+                url: '/deleteMap/'+kode,
                 type: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
+                // data: {
+                //     _token: '{{ csrf_token() }}'
+                // },
                 success: function(data) {
                     // console.log(data);
                     $("#areaContainer #areabutton"+data.id).remove();
@@ -217,7 +217,7 @@
 
                 createNode(clickX, clickY, selectedRadio);
 
-                addPoint(x, y, shape, activeRow);
+                addPoint(clickX, clickY, shape, activeRow);
             });
 
             $('#map-image').on('mousedown', function() {

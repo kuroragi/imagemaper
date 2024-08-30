@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CPU\Helpers;
 use App\Models\Imagemap;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -44,6 +45,22 @@ class ImagemapController extends Controller
         }
 
         return response()->json(['areas' => $request->areas]);
+    }
+    
+    public function storeMap(Request $request)
+    {
+        // return response()->json($request);
+        foreach ($request->areas as $area) {
+            $data = ['id_group' => $request->id_group, 'name' => $area['alt'], 'coordinate' => $area['coords'], 'shape' => $area['shape'], 'status' => $area['status'], 'description' => $area['description'], 'id_asset' => $area['id_asset']];
+
+            // return response()->json(['msg' => $data]);
+
+            $status = Helpers::postMap($data);
+
+            return response()->json(['msg' => $status]);
+        }
+
+        // return response()->json(['areas' => $request->areas]);
     }
 
     /**
@@ -91,6 +108,15 @@ class ImagemapController extends Controller
         // return response()->json("berhasil masuk hapus");
 
         Imagemap::destroy('id', $imagemap->id);
+
+        return response()->json(['msg' => 'Berhasil Hapus data '.$imagemap->name, 'id' => $imagemap->id]);
+    }
+
+    public function destroyMap(Imagemap $imagemap)
+    {
+        // return response()->json("berhasil masuk hapus");
+
+        Helpers::deleteMap($imagemap->id);
 
         return response()->json(['msg' => 'Berhasil Hapus data '.$imagemap->name, 'id' => $imagemap->id]);
     }

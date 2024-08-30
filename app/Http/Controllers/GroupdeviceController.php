@@ -81,12 +81,41 @@ class GroupdeviceController extends Controller
     public function show(Groupdevice $groupdevice)
     {
         $areas = Imagemap::where('id_group', $groupdevice->id)->get();
+        $nodes = collect();
+        foreach ($areas as $m) {
+            $mapnodes = explode(',', $m->coordinate);
+            $nodes = collect($mapnodes)->chunk(2)->map(function($pair, $index) use ($m){
+                return [
+                    'x' => $pair->first(),
+                    'y' => $pair->last(),
+                    'nodeName' => 'savedNode_'.$m->id.'_'.($index + 1),
+                ];
+            })->all();
+        }
         $asset = Asset::groupBy('name')->get();
         // dd($areas);
         return view('groupdevice.areas', [
             'groupdevice' => $groupdevice,
             'areas' => $areas,
+            'nodes' => $nodes,
             'asset' => $asset,
+        ]);
+    }
+
+    public function showGroup(int $id){
+        $group = Helpers::getGroupSelect($id)['data'][0];
+        $map = Helpers::getImageMap($id)['data'];
+        // foreach ($map as $m) {
+        //     $mapnodes = explode(',', $m->coordinate);
+        //     dd($mapnodes);
+        // }
+        // $nodes = explode(',', $map);
+        // dd($nodes);
+        // dd($map);
+        return view('groupdevice.areas_api', [
+            'groupdevice' => $group,
+            'areas' => $map,
+            // 'asset' => $asset,
         ]);
     }
 

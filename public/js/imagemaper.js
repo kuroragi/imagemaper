@@ -260,7 +260,6 @@ function collectArea() {
     // updateArea();
 }
 
-
 function saveAreas(groupId) {
     collectArea();
 
@@ -291,6 +290,43 @@ function saveAreas(groupId) {
             // });
             // areasToAdd = [];
             location.reload();
+        },
+        error: function(e) {
+            console.log(e.responseText);
+        }
+    });
+}
+
+function saveAreasApi(groupId) {
+    collectArea();
+
+    if (areasToAdd.length === 0) {
+        alert('No areas to save.');
+        return;
+    }
+
+
+    // Debugging log to check areasToAdd
+    console.log('Areas to add:', areasToAdd);
+
+
+    $.ajax({
+        url: '/imageMapApi',
+        type: 'POST',
+        data: {
+            id_group: groupId,
+            areas: areasToAdd,
+            // _token: '{{ csrf_token() }}'
+        },
+        success: function(data) {
+            console.log(data);
+
+            // alert(data);
+            // data.areas.forEach(function(area) {
+            //     updateTable(area);
+            // });
+            // areasToAdd = [];
+            // location.reload();
         },
         error: function(e) {
             console.log(e.responseText);
