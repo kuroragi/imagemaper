@@ -456,7 +456,7 @@ function createNode(x, y, selectedRadio){
     // buat elemen node
     let node = $("<div id='"+ID+"' x='"+x+"'  y='"+y+"' class='node'></div>");
 
-    console.log(x-5+', '+y-5);
+    // console.log(x-5+', '+y-5);
     
 
     // Atur posisi node berdasarkan klik

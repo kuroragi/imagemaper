@@ -213,11 +213,12 @@
                 }                
 
                 var shape = activeRow.find('select[name^="shape_"]').val();
-                // console.log(selectedRadio);
+                console.log("scaleX => " + scaleX + ", scaleY => " + scaleY);
+                console.log("scaleX => " + scaleX + ", scaleY => " + scaleY);
 
                 createNode(clickX, clickY, selectedRadio);
 
-                addPoint(clickX, clickY, shape, activeRow);
+                addPoint(x, y, shape, activeRow);
             });
 
             $('#map-image').on('mousedown', function() {
