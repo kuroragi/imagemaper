@@ -93,7 +93,7 @@
         <h1 class="text-center mb-4">Maping Gambar</h1>
 
         <div class="mx-2">
-            <div id="map-image-container" class=" w-100 text-center">
+            <div id="map-image-container" class="text-center" style="width: 110%;">
                 <img id="map-image" src="{{ $groupdevice->image }}" class="img-fluid rounded shadow" usemap="#areaContainer">
                 <map name="areaContainer" id="areaContainer">
                     @foreach ($areas as $area)
@@ -189,8 +189,14 @@
                         <textarea class="form-control" name="description_{{ $area->id }}" placeholder="Description" required>{{ $area->description }}</textarea>
                     </div>
         
-                    <div class="col col-1 align-content-center text-center">
-                        <button class="btn btn-danger" id="removeArea" areaID="{{ $area->id }}"><i class="fa fa-circle-xmark"></i></button>
+                    <div class="col col-1 align-content-center text-center" id="buttonArea_{{ $area->id }}">
+                        <div id="deleteArea">
+                            <button class="btn btn-danger" id="removeArea" areaID="{{ $area->id }}"><i class="fa fa-trash"></i></button>
+                        </div>
+                        <div id="updateArea" class="d-none">
+                            <button class="btn btn-primary" id="saveArea" areaID="{{ $area->id }}"><i class="fa fa-floppy-disk"></i></button>
+                            <button class="btn btn-danger" id="cancelSaveArea" areaID="{{ $area->id }}"><i class="fa fa-xmark-circle"></i></button>
+                        </div>
                     </div>
                 </div>
             @endforeach
@@ -283,20 +289,7 @@
         
         $('#map-image').on('click', function(e) {
 
-            // Dimensi asli gambar #map-image
-            var originalWidth = this.naturalWidth;
-            var originalHeight = this.naturalHeight;
-
-            console.log(this);
-            
-
-            // Dimensi tampilan gambar
-            var displayedWidth = $(this).width();
-            var displayedHeight = $(this).height();
-
-            // Hitung skala
-            scaleX = originalWidth / displayedWidth;
-            scaleY = originalHeight / displayedHeight;
+            let imageScale = getImageScale();
 
             // Koordinat klik dalam dimensi tampilan
             var offset = $(this).offset();
@@ -304,8 +297,8 @@
             var clickY = e.pageY - offset.top;
 
             // Sesuaikan koordinat untuk dimensi asli
-            var x = clickX * scaleX;
-            var y = clickY * scaleY;
+            var x = clickX * imageScale.scaleX;
+            var y = clickY * imageScale.scaleY;
 
             // Sesuaikan kembali koordinat dengan dimensi gambar
             // var displayX = x / scaleX;
@@ -313,29 +306,22 @@
 
             pointClick++;
 
-            let selectedRadio = getCheckedRadio();
-            let activeRow = getActiveRow();
-
-            if (!selectedRadio.length) {
-                pointClick = 0;
+            if (!getCheckedRadio().length) {
+                resetPointClick();
                 alert('Please select an area to add coordinates.');
                 return;
             }
 
-            var alt = activeRow.find('[name^="alt"]').val();
+            var alt = getAltActivedRow();
             if (alt == null || alt == '') {
-                pointClick = 0;
+                resetPointClick();
                 alert('Nama Area Masih Kosong, Mohon Diisi');
                 return;
-            }                
+            }
 
-            var shape = activeRow.find('select[name^="shape_"]').val();
-            console.log("scaleX => " + scaleX + ", scaleY => " + scaleY);
-            console.log("scaleX => " + scaleX + ", scaleY => " + scaleY);
+            createNode(clickX, clickY);
 
-            createNode(clickX, clickY, selectedRadio);
-
-            addPoint(x, y, shape, activeRow);
+            addPoint(x, y);
         });
 
         $('#map-image').on('mousedown', function() {
@@ -348,7 +334,7 @@
             addAreaRow();
         });
 
-        updateArea();
+        renderArea();
 
         $("#savedFormContainer").on("click", "#savedRadio", function (e) {
             let id = $(this).val();
@@ -362,7 +348,7 @@
     $('.close-btn').click(function(){
         $('#infoPanel').removeClass('show');
         $('#mainContainer').removeClass('shifted');
-        updateArea()
+        renderArea()
     });
 
     $("#infoPanel").on("click", "#editAreaButton", function(e){
@@ -390,7 +376,7 @@
                 $("#areaContainer #savedArea_"+data.id).remove();
                 $("#area-table-body #tr"+data.id).remove();
 
-                updateArea();
+                renderArea();
             },
             error: function(e) {
                 console.log(e.responseText);
@@ -410,8 +396,10 @@ const image = $('#map-image');
 const areaContainer = $('#areaContainer')
 const nodeContainer = $('#nodeContainer');
 const selectedAreas = new Set();
-const _newNode = 'newNode_';
-const _newArea = 'newArea_';
+const newNodeName = 'newNode_';
+const newAreaName = 'newArea_';
+const savedAreaName = 'savedArea_';
+const savedNodeName = 'savedNode_';
 const rectNode = 2,
     circleNode = 2;
 
@@ -444,10 +432,13 @@ let firstX, firstY, $newArea, xOne, yOne;
 //     }
 // }
 
-function addPoint(x, y, shape, selectedRadio) {
-    let alt = selectedRadio.find('[name^="alt"]').val();
-    let status = selectedRadio.find('[name^="status"]').val();
-    let description = selectedRadio.find('[name^="description"]').val();
+function addPoint(x, y) {
+    console.log(`X: ${x}, Y: ${y}`);
+    
+    let alt = getAltActivedRow();
+    let status = getStatusActivedRow();
+    let description = getDescriptionActivedRow();
+    let shape = getShapeActivedRow();
     if (shape === 'rect') {
         addSelectedCoords(x, y);
 
@@ -457,13 +448,9 @@ function addPoint(x, y, shape, selectedRadio) {
             }).join(',');
 
             
-            if (selectedRadio.length) {
-                selectedRadio.find('[name^="coords"]').val(coords);
-            } else {
-                alert('Please select an area to add coordinates.');
-            }
+            updateCheckedRadioCoord(coords);
 
-            let areaId = selectedRadio.find('[id^="area_id"]').val();
+            let areaId = getCheckedRadioValue();
 
             let newArea = {
                 areaId: areaId,
@@ -474,9 +461,9 @@ function addPoint(x, y, shape, selectedRadio) {
                 description: description,
             };
 
-            pointClick = 0;
+            resetPointClick();
             resetSelectedCoords();
-            addArea(newArea);
+            updateAreaOnMap(newAreaName, newArea);
         }
     } else if (shape === 'circle') {
         if (isFirstClickCircle) {
@@ -487,13 +474,9 @@ function addPoint(x, y, shape, selectedRadio) {
         } else if (pointClick === circleNode && isFirstClickCircle === false) {
             let coords = xOne + ',' + yOne + ',' + radiusCalc(x, y);
 
-            if (selectedRadio.length) {
-                selectedRadio.find('[name^="coords"]').val(coords);
-            } else {
-                alert('Please select an area to add coordinates.');
-            }
+            updateCheckedRadioCoord(coords);
 
-            let areaId = selectedRadio.find('[id^="area_id"]').val();
+            let areaId = getCheckedRadioValue();
 
             let newArea = {
                 areaId: areaId,
@@ -504,10 +487,10 @@ function addPoint(x, y, shape, selectedRadio) {
                 description: description,
             };
 
-            pointClick = 0;
+            resetPointClick();
             isFirstClickCircle = true;
             resetSelectedCoords();
-            addArea(newArea);
+            updateAreaOnMap(newAreaName, newArea);
         }
     } else if (shape === 'poly') {
         addSelectedCoords(x, y);
@@ -518,13 +501,9 @@ function addPoint(x, y, shape, selectedRadio) {
                 return pt.x + ',' + pt.y;
             }).join(',');
 
-            if (selectedRadio.length) {
-                selectedRadio.find('[name^="coords"]').val(coords);
-            } else {
-                alert('Please select an area to add coordinates.');
-            }
+            updateCheckedRadioCoord(coords);
 
-            let areaId = selectedRadio.find('[id^="area_id"]').val();
+            let areaId = getCheckedRadioValue();
 
             let newArea = {
                 areaId: areaId,
@@ -538,7 +517,7 @@ function addPoint(x, y, shape, selectedRadio) {
             isdblClicked = false;
             resetPointClick();
             resetSelectedCoords();
-            addArea(newArea);
+            updateAreaOnMap(newAreaName, newArea);
         }
     }
 }
@@ -589,33 +568,22 @@ function addAreaRow() {
             </div>
 
             <div class="col col-1 align-content-center text-center">
-                <button class="btn btn-danger" id="removeArea" areaID="${areaCount}"><i class="fa fa-circle-xmark"></i></button>
+                <button class="btn btn-danger" id="removeArea" areaID="${areaCount}"><i class="fa fa-trash"></i></button>
             </div>
         </div>
     `;
     $('#form-container').append(newRow);
 }
 
-function addArea(area) {
+function updateAreaOnMap(areaName ,area) {
     
-    $("#areaContainer #"+_newArea+area.areaId) ? $("#areaContainer #"+_newArea+area.areaId).remove() : '';
+    $("#areaContainer #"+areaName+area.areaId) ? $("#areaContainer #"+areaName+area.areaId).remove() : '';
 
     $("#nodeContainer #new-node-"+area.areaId) ? $("#nodeContainer #new-node-"+area.areaId+"-"+pointClick).remove() : '';
 
-    addMap(area);
+    addAreaOnMap(areaName, area);
     runCallout();
-    updateArea();
-}
-
-function updateSavedArea(area) {
-    
-    $("#areaContainer #savedArea_"+area.areaId) ? $("#areaContainer #savedArea_"+area.areaId).remove() : 'lolos aja';
-
-    // $("#nodeContainer #savedNode_"+area.areaId+"_"+area.nodeIndex) ? $("#nodeContainer #savedNode_"+area.areaId+"_"+area.nodeIndex).remove() : '';
-
-    addSavedMap(area);
-    runCallout();
-    updateArea();
+    renderArea();
 }
 
 function collectArea() {
@@ -629,17 +597,6 @@ function collectArea() {
         let shape = $(this).find('[name^="shape"]').val();
         let status = $(this).find('[name^="status"]').val();
         let description = $(this).find('[name^="description"]').val();
-
-        // if (coords.split(',').length < 4) {
-        //     alert('Please select points on the image.');
-        //     return false;
-        // }
-
-        // if(alt == null || alt == ''){
-        //     areasToAdd = [];
-        //     alert('Nama Area Jangan Ada Yang Kosong.');
-        //     return;
-        // }
 
         let areaData = {
             alt: alt,
@@ -661,7 +618,7 @@ function collectArea() {
 
     // Tambahkan area ke peta dengan warna abu-abu
     areasToAdd.forEach(area => {
-        addMap(area);
+        addAreaOnMap(newAreaName, area);
 
         let newRow = `
             <tr>
@@ -676,7 +633,7 @@ function collectArea() {
         $('#area-table-body').append(newRow);
     });
 
-    // updateArea();
+    // renderArea();
 }
 
 function saveAreas(groupId) {
@@ -705,7 +662,7 @@ function saveAreas(groupId) {
 
             // alert(data);
             // data.areas.forEach(function(area) {
-            //     updateTable(area);
+            //     addAreaRowTable(area);
             // });
             // areasToAdd = [];
             location.reload();
@@ -742,10 +699,47 @@ function saveAreasApi(groupId) {
 
             // alert(data);
             // data.areas.forEach(function(area) {
-            //     updateTable(area);
+            //     addAreaRowTable(area);
             // });
             // areasToAdd = [];
-            // location.reload();
+            location.reload();
+        },
+        error: function(e) {
+            console.log(e.responseText);
+        }
+    });
+}
+
+function updateAreaApi(groupId, data) {
+    collectArea();
+
+    if (areasToAdd.length === 0) {
+        alert('No areas to save.');
+        return;
+    }
+
+
+    // Debugging log to check areasToAdd
+    console.log('Areas to add:', areasToAdd);
+
+
+    $.ajax({
+        url: '/imageMapApi',
+        type: 'POST',
+        data: {
+            id_group: groupId,
+            areas: data,
+            // _token: '{{ csrf_token() }}'
+        },
+        success: function(data) {
+            console.log(data);
+
+            // alert(data);
+            // data.areas.forEach(function(area) {
+            //     addAreaRowTable(area);
+            // });
+            // areasToAdd = [];
+            location.reload();
         },
         error: function(e) {
             console.log(e.responseText);
@@ -756,12 +750,10 @@ function saveAreasApi(groupId) {
 $('.close-btn').click(function(){
     $('#infoPanel').removeClass('show');
     $('#mainContainer').removeClass('shifted');
-    // updateArea()
+    // renderArea()
 });
 
-function updateArea() {
-    console.log("mapster");
-    
+function renderArea() {
     $('#map-image').mapster({
         fillColor: 'ffff00',
         singleSelect: true,
@@ -809,7 +801,7 @@ function updateArea() {
     // $("#map-image").mapster('rebind', true);
 }
 
-function updateTable(area) {
+function addAreaRowTable(area) {
     $('#area-table-body').append(
         '<tr>' +
         '<td>' + area.alt + '</td>' +
@@ -832,11 +824,11 @@ function updateCoords($element) {
     // $('input[name="coords_' + $('input[name="selected_area"]:checked').val() + '"]').val(coords);
 }
 
-function addMap(area) {
+function addAreaOnMap(areaName, area) {
     let areaRow = `
     <area data-status="${area.status}" alt="${area.alt},${area.status}"
                 title="${area.alt}" href="javascript:void(0);" coords="${area.coords}"
-                shape="${area.shape}" id="${_newArea}${area.areaId}">
+                shape="${area.shape}" id="${areaName}${area.areaId}" kode="${area.areaId}">
     `;
     $('#areaContainer').append(areaRow);
 }
@@ -881,12 +873,12 @@ function updateInfoPanel(area) {
     
 }
 
-function createNode(x, y, selectedRadio){
+function createNode(x, y){
 
 
-    let areaId = selectedRadio.val();
+    let areaId = getCheckedRadioValue();
 
-    const ID = _newNode+areaId+'_'+pointClick;
+    const ID = newNodeName+areaId+'_'+pointClick;
 
     let nodeIndex = pointClick - 1;
 
@@ -913,13 +905,13 @@ function createNode(x, y, selectedRadio){
 $("#nodeContainer [id*='savedNode_']").draggable({
     containment: "#map-image-container",
     stop: function(event, ui){
-        let selectedRadio = getCheckedSavedRadio();
-        let activeRow = getActiveRow();
-        let areaID = selectedRadio.val();
-        let nodeIndex = $(this).attr('nodeIndex');
-        let nodeID = "savedNode_"+areaID+"_"+(parseInt(nodeIndex) + 1);
         
-        updateSavedCoordsFromNode(nodeID, areaID, nodeIndex)
+        let areaID = getSavedCheckedRadioValue();
+        let nodeIndex = $(this).attr('nodeIndex');
+        let nodeID = savedNodeName+areaID+"_"+(parseInt(nodeIndex) + 1);
+        
+        updateSavedCoordsFromNode(nodeID, areaID, nodeIndex);
+        savedRowCoordUpdated(areaID);
     }
 })
 
@@ -967,7 +959,7 @@ function updateCoordsFromNode(nodeID, areaID, nodeIndex){
                 x = $(element).css('left').replace('px', '') * scaleX + 5;
                 y = $(element).css('top').replace('px', '') * scaleY + 5;
                 let _newnode1 = '{"new Node" => '+areaID+', "X" => '+x+', "Y" => '+y+'},';
-                console.log(areaID);
+                console.log(`xAwal: ${$(element).css('left').replace('px', '')}, yAwal: ${$(element).css('top').replace('px', '')},\n xScaled: ${x}, yScaled: ${y}`);
                 
                 
                 $("#newNodeArea #nna"+nodeID+" span").text(_newnode1);
@@ -985,7 +977,7 @@ function updateCoordsFromNode(nodeID, areaID, nodeIndex){
     }
 
 
-    getActiveRow().find('[name^="coords"]').val(newCoords)
+    updateCheckedRadioCoord(newCoords);
 
     resetSelectedCoords();
     updateCoordsArea(newCoords, areaID);
@@ -1061,6 +1053,7 @@ function updateSavedCoordsFromNode(nodeID, areaID, nodeIndex){
             return pt.x + ',' + pt.y;
         }).join(',');
     }
+    
 
 
     getSavedActiveRow().find('[name^="coords"]').val(newCoords)
@@ -1084,7 +1077,26 @@ function updateSavedCoordsFromNode(nodeID, areaID, nodeIndex){
     // $("input[name='coords_"+nodeID+"']").val(x+","+y);
 }
 
-// function updateAreaFromNode(nodeID, size, position){
+$("#savedFormContainer").on("click", "#saveArea", function(e){
+    let areaID = $(this).attr("areaID");
+    let alt = getSavedAltActivedRow();
+    let shape = getSavedShapeActivedRow();
+    let description = getSavedDescriptionActivedRow();
+    let coords = getSavedCoordsActivedRow();
+    let id_asset = getSavedAssetActivedRow();
+
+    let areaData = {
+        alt: alt,
+        shape: shape,
+        description: description,
+        coords: coords,
+        id_asset: id_asset,
+    };
+
+    updateAreaApi(areaID, areaData);
+})
+
+// function renderAreaFromNode(nodeID, size, position){
 //     // Memperbaruin area pada peta berdasarkan ukuran dan posisi node yang di-resize
 //     const width = size.width;
 //     const height = size.height;
@@ -1146,16 +1158,76 @@ function getCheckedRadio(){
     return $('#form-container input[type="radio"]:checked');
 }
 
-function getCheckedSavedRadio(){
-    return $('#savedFormContainer input[type="radio"]:checked');
+function getCheckedRadioValue(){
+    return getCheckedRadio().val();
 }
 
 function getActiveRow(){
-    return $('#form-container input[type="radio"]:checked').closest('.area-row');
+    return getCheckedRadio().closest('.area-row');
+}
+
+function getShapeActivedRow(){
+    return getActiveRow().find('select[name^="shape_"]').val();
+}
+
+function getCoordsActivedRow(){
+    return getActiveRow().find('select[name^="coords_"]').val();
+}
+
+function getAltActivedRow(){
+    return getActiveRow().find('input[name^="alt"]').val();
+}
+
+function getStatusActivedRow(){
+    return getActiveRow().find('select[name^="status"]').val();
+}
+
+function getAssetActivedRow(){
+    return getActiveRow().find('select[name^="asset"]').val();
+}
+
+function getDescriptionActivedRow(){
+    return getActiveRow().find('textarea[name^="description"]').val();
+}
+
+function getSavedCheckedRadio(){
+    return $('#savedFormContainer input[type="radio"]:checked');
+}
+
+function getSavedCheckedRadioValue(){
+    return getSavedCheckedRadio().val();
 }
 
 function getSavedActiveRow(){
-    return $('#savedFormContainer input[type="radio"]:checked').closest('.area-row');
+    return getSavedCheckedRadio().closest('.area-row');
+}
+
+function getSavedActiveRow(){
+    return getSavedCheckedRadio().closest('.area-row');
+}
+
+function getSavedShapeActivedRow(){
+    return getSavedActiveRow().find('select[name^="shape_"]').val();
+}
+
+function getSavedCoordsActivedRow(){
+    return getSavedActiveRow().find('select[name^="coords_"]').val();
+}
+
+function getSavedAltActivedRow(){
+    return getSavedActiveRow().find('input[name^="alt"]').val();
+}
+
+function getSavedStatusActivedRow(){
+    return getSavedActiveRow().find('select[name^="status"]').val();
+}
+
+function getSavedAssetActivedRow(){
+    return getSavedActiveRow().find('select[name^="asset"]').val();
+}
+
+function getSavedDescriptionActivedRow(){
+    return getSavedActiveRow().find('textarea[name^="description"]').val();
 }
 
 function getImageOriginalSize(){
@@ -1198,10 +1270,10 @@ function getImageScale(){
 }
 
 function updateCoordsArea(_coords, areaID){
-    let alt = getActiveRow().find('[name^="alt"]').val();
-    let shape = getActiveRow().find('[name^="shape"]').val();
-    let status = getActiveRow().find('[name^="status"]').val();
-    let description = getActiveRow().find('[name^="description"]').val();
+    let alt = getAltActivedRow();
+    let shape = getShapeActivedRow();
+    let status = getStatusActivedRow();
+    let description = getDescriptionActivedRow();
 
     let newArea = {
         alt: alt,
@@ -1212,14 +1284,15 @@ function updateCoordsArea(_coords, areaID){
         coords: _coords
     };
 
-    addArea(newArea);
+    updateAreaOnMap(newAreaName, newArea);
 }
 
 function updateSavedCoordsArea(_coords, areaID){
-    let alt = getSavedActiveRow().find('[name^="alt"]').val();
-    let shape = getSavedActiveRow().find('[name^="shape"]').val();
-    let status = getSavedActiveRow().find('[name^="status"]').val();
-    let description = getSavedActiveRow().find('[name^="description"]').val();
+    
+    let alt = getSavedAltActivedRow();
+    let shape = getSavedShapeActivedRow();
+    let status = getSavedStatusActivedRow();
+    let description = getSavedDescriptionActivedRow();
 
     let newArea = {
         alt: alt,
@@ -1229,12 +1302,22 @@ function updateSavedCoordsArea(_coords, areaID){
         areaId: areaID,
         coords: _coords
     };
+    
 
-    updateSavedArea(newArea);
+    updateAreaOnMap(savedAreaName, newArea);
+}
+
+function savedRowCoordUpdated(areaID){
+    $(`#savedFormContainer #buttonArea_${areaID} #deleteArea`).addClass(`d-none`);
+    $(`#savedFormContainer #buttonArea_${areaID} #updateArea`).removeClass(`d-none`);
 }
 
 function radiusCalc(x, y){
     return Math.sqrt(Math.pow(x - xOne, 2) + Math.pow(y - yOne, 2));
+}
+
+function updateCheckedRadioCoord(coords){
+    getCheckedRadio().length ? getCheckedRadio().find('[name^="coords"]').val(coords) : alert('Pilih area yang akan ditambahkan koordinat.');
 }
 
 function removeArea(areaID){
@@ -1244,7 +1327,7 @@ function removeArea(areaID){
         element.remove();
     });
     $("#area-row-"+areaID).remove();
-    updateArea();
+    renderArea();
 }
 
 function storeSavedUpdate(){
