@@ -296,6 +296,72 @@ class Helpers{
         }
     }
 
+    public static function updateMap($map){
+        $token = Helpers::getToken();
+
+        $key = $token;
+
+        $api = config('secret.main_api').'/edit_image_mapper';
+
+        $header = [
+            'Authorization' => $key,
+        ];
+
+        $body = [
+            'id' => $map['id'],
+            'name' => $map['name'],
+            'coordinate' => $map['coordinate'],
+            'description' => $map['description'],
+            'status' => $map['status'],
+            'shape' => $map['shape'],
+            'device_type' => $map['device_type'],
+            'meta' => $map['meta'],
+            'id_asset_group' => $map['id_asset_group'],
+            'id_asset' => $map['id_asset'],
+        ];
+        
+        try {
+            $client = new Client();
+            $response = $client->request('POST', $api, [
+                'headers' => $header,
+                'form_params' => $body,
+            ]);
+
+            
+            
+            $status = $response->getStatusCode();
+            
+            
+            session()->put('token', $key);
+            
+            if ($status == 200) {
+                $resp = json_decode($response->getBody()->getContents())->api_status;
+
+                if ($resp == 0) {
+                    $data = [
+                        'code' => 404,
+                        'message' => 'Data Tidak Dapat Dikirim',
+                    ];
+
+                    return $data;
+                }else{
+                    // $imageMap = json_decode($response->getBody())->data;
+
+                    $data = [
+                        'code' => 201,
+                        'message' => 'Area Berhasil di Update',
+                    ];
+
+                    return $data;
+                }
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json($th);
+
+        }
+    }
+
     public static function deleteMap($id){
         $token = Helpers::getToken();
 

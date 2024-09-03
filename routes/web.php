@@ -25,6 +25,7 @@ Route::resource('/groupdevice', GroupdeviceController::class);
 Route::get('/assetGroup/{id}', [GroupdeviceController::class, 'showGroup']);
 Route::resource('/imagemap', ImagemapController::class);
 Route::post('/imageMapApi', [ImagemapController::class, 'storeMap']);
+Route::post('/updateAreaSavedApi', [ImagemapController::class, 'updateMap']);
 Route::delete('/deleteMap/{imagemap}', [ImagemapController::class, 'destroyMap']);
 
 // Route::get('/test', function(){

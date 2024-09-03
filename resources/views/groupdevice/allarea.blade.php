@@ -99,7 +99,7 @@
                     @foreach ($areas as $area)
                         <area data-status="{{ $area->status }}" alt="{{ $area->name }},{{ $area->status }}"
                             title="{{ $area->name }}" href="javascript:void(0);" coords="{{ $area->coordinate }}"
-                            shape="{{ $area->shape }}" desc="{{ $area->description }}" id="savedArea_{{ $area->id }}" kode="{{ $area->id }}">
+                            shape="{{ $area->shape }}" desc="{{ $area->description }}" id_group="{{ $area->id_asset_group }}" id="savedArea_{{ $area->id }}" kode="{{ $area->id }}">
                     @endforeach
                 </map>
                 <div id="nodeContainer">
@@ -151,6 +151,7 @@
             @foreach ($areas as $area)
                 <div class="area-row row" id="area-row-{{ $area->id }}">
                     <input type="hidden" id="area_id" value="{{ $area->id }}">
+                    <input type="hidden" id="id_asset_group_{{ $area->id }}" value="{{ $area->id_asset_group }}">
         
                     <div class="col col-1 align-content-center text-center">
                         <input type="radio" id="savedRadio_{{ $area->id }}" name="selected_area" value="{{ $area->id }}">
@@ -711,23 +712,15 @@ function saveAreasApi(groupId) {
 }
 
 function updateAreaApi(groupId, data) {
-    collectArea();
 
-    if (areasToAdd.length === 0) {
-        alert('No areas to save.');
-        return;
-    }
-
-
-    // Debugging log to check areasToAdd
-    console.log('Areas to add:', areasToAdd);
-
+    console.log(data);
+    
 
     $.ajax({
-        url: '/imageMapApi',
+        url: '/updateAreaSavedApi',
         type: 'POST',
         data: {
-            id_group: groupId,
+            id: groupId,
             areas: data,
             // _token: '{{ csrf_token() }}'
         },
@@ -739,7 +732,7 @@ function updateAreaApi(groupId, data) {
             //     addAreaRowTable(area);
             // });
             // areasToAdd = [];
-            location.reload();
+            // location.reload();
         },
         error: function(e) {
             console.log(e.responseText);
@@ -1078,19 +1071,28 @@ function updateSavedCoordsFromNode(nodeID, areaID, nodeIndex){
 }
 
 $("#savedFormContainer").on("click", "#saveArea", function(e){
+
     let areaID = $(this).attr("areaID");
     let alt = getSavedAltActivedRow();
     let shape = getSavedShapeActivedRow();
     let description = getSavedDescriptionActivedRow();
     let coords = getSavedCoordsActivedRow();
+    let id_asset_group = getSavedIdGroupActivedRow();
     let id_asset = getSavedAssetActivedRow();
+    let status = getSavedStatusActivedRow()
+    let device_type = '';
+    let meta = '';
 
     let areaData = {
         alt: alt,
         shape: shape,
         description: description,
         coords: coords,
+        id_asset_group: id_asset_group,
         id_asset: id_asset,
+        status: status,
+        device_type: device_type,
+        meta: meta,
     };
 
     updateAreaApi(areaID, areaData);
@@ -1202,16 +1204,16 @@ function getSavedActiveRow(){
     return getSavedCheckedRadio().closest('.area-row');
 }
 
-function getSavedActiveRow(){
-    return getSavedCheckedRadio().closest('.area-row');
-}
-
 function getSavedShapeActivedRow(){
     return getSavedActiveRow().find('select[name^="shape_"]').val();
 }
 
 function getSavedCoordsActivedRow(){
-    return getSavedActiveRow().find('select[name^="coords_"]').val();
+    return getSavedActiveRow().find('input[name^="coords_"]').val();
+}
+
+function getSavedIdGroupActivedRow(){
+    return getSavedActiveRow().find('input[name^="id_asset_group_"]').val();
 }
 
 function getSavedAltActivedRow(){
@@ -1294,6 +1296,9 @@ function updateSavedCoordsArea(_coords, areaID){
     let status = getSavedStatusActivedRow();
     let description = getSavedDescriptionActivedRow();
 
+    console.log("updateSavedCoordsArea()::areaID=> "+areaID);
+    
+
     let newArea = {
         alt: alt,
         shape: shape,
@@ -1310,6 +1315,11 @@ function updateSavedCoordsArea(_coords, areaID){
 function savedRowCoordUpdated(areaID){
     $(`#savedFormContainer #buttonArea_${areaID} #deleteArea`).addClass(`d-none`);
     $(`#savedFormContainer #buttonArea_${areaID} #updateArea`).removeClass(`d-none`);
+}
+
+function RowCoordUpdatedUpdated(areaID){
+    $(`#savedFormContainer #buttonArea_${areaID} #deleteArea`).removeClass(`d-none`);
+    $(`#savedFormContainer #buttonArea_${areaID} #updateArea`).addClass(`d-none`);
 }
 
 function radiusCalc(x, y){
