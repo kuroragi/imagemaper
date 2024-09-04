@@ -1386,8 +1386,6 @@ function storeSavedUpdate(){
 
 function setNodeCoordinate(areaID){
     //
-    
-    let areaShape = $("#areaContainer").find("[id*='savedArea_"+areaID+"']").attr('shape');
     let nodes = $("#nodeContainer").find("[id*='savedNode_"+areaID+"_']");
 }
 
