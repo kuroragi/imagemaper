@@ -151,16 +151,16 @@
             @foreach ($areas as $area)
                 <div class="area-row row" id="area-row-{{ $area->id }}">
                     <input type="hidden" id="area_id" value="{{ $area->id }}">
-                    <input type="hidden" name="id_asset_group_{{ $area->id }}" value="{{ $area->id_asset_group }}">
+                    <input type="hidden" name="id_asset_group_{{ $area->id }}" id="id_asset_group_{{ $area->id }}" value="{{ $area->id_asset_group }}">
         
                     <div class="col col-1 align-content-center text-center">
                         <input type="radio" id="savedRadio_{{ $area->id }}" name="selected_area" value="{{ $area->id }}">
                     </div>
         
-                    <input type="text" class="form-control" name="coords_{{ $area->id }}" placeholder="Coordinates" value="{{ $area->coordinate }}" readonly>
+                    <input type="text" class="form-control" name="coords_{{ $area->id }}" id="coords_{{ $area->id }}" placeholder="Coordinates" value="{{ $area->coordinate }}" readonly>
         
                     <div class="col col-1 align-content-center text-center" required>
-                        <select class="form-control" name="shape_{{ $area->id }}">
+                        <select class="form-control" name="shape_{{ $area->id }}" id="shape_{{ $area->id }}">
                             <option @if ($area->shape == 'rect') selected @endif  value="rect">Rectangle</option>
                             <option  @if ($area->status == 'circle') selected @endif value="circle">Circle</option>
                             <option  @if ($area->status == 'poly') selected @endif value="poly">Polygon</option>
@@ -168,7 +168,7 @@
                     </div>
         
                     <div class="col col-2 align-content-center text-center">
-                        <select class="form-control" name="status_{{ $area->id }}" id="status" required>
+                        <select class="form-control" name="status_{{ $area->id }}" id="status_{{ $area->id }}" required>
                             <option @if ($area->status == 'kosong') selected @endif value="kosong">Kosong</option>
                             <option @if ($area->status == 'baik') selected @endif  value="baik">Baik</option>
                             <option @if ($area->status == 'rusak') selected @endif  value="rusak">Rusak</option>
@@ -176,7 +176,7 @@
                     </div>
         
                     <div class="col col-2 align-content-center text-center">
-                        <input type="text" class="form-control" name="alt_{{ $area->id }}" id="alt" placeholder="Name Area" value="{{ $area->name }}" required>
+                        <input type="text" class="form-control" name="alt_{{ $area->id }}" id="alt_{{ $area->id }}" placeholder="Name Area" value="{{ $area->name }}" required>
                     </div>
         
                     <div class="col col-2 align-content-center text-center">
@@ -187,7 +187,7 @@
                     </div>
         
                     <div class="col col-3 align-content-center text-center">
-                        <textarea class="form-control" name="description_{{ $area->id }}" placeholder="Description" required>{{ $area->description }}</textarea>
+                        <textarea class="form-control" name="description_{{ $area->id }}" id="description_{{ $area->id }}" placeholder="Description" required>{{ $area->description }}</textarea>
                     </div>
         
                     <div class="col col-1 align-content-center text-center" id="buttonArea_{{ $area->id }}">
@@ -200,6 +200,12 @@
                         </div>
                     </div>
                 </div>
+            @endforeach
+        </div>
+
+        <div class="d-none" id="savedDataOrigin">
+            @foreach ($areas as $area)
+                <div id="origindata_{{ $area->id }}" areaID="{{ $area->id }}" id_asset_group="{{ $area->id_asset_group }}" coordinate="{{ $area->coordinate }}" shape="{{ $area->shape }}" status="{{ $area->status }}" alt="{{ $area->name }}" id_asset="{{ $area->id_asset }}" description="{{ $area->description }}" meta="{{ $area->meta }}" device_type="{{ $area->device_type }}"></div>
             @endforeach
         </div>
 
@@ -711,19 +717,24 @@ function saveAreasApi(groupId) {
     });
 }
 
-function updateAreaApi(groupId, data) {
+function updateAreaApi(areaID, areaData) {
+    console.log(areaData);
+    
     
 
     $.ajax({
         url: '/updateAreaSavedApi',
         type: 'POST',
         data: {
-            id: groupId,
-            areas: data,
+            id: areaID,
+            areas: areaData,
             // _token: '{{ csrf_token() }}'
         },
         success: function(data) {
             console.log(data);
+
+            updateSavedCoordsArea(areaData.coords, areaID);
+            RowCoordUpdatedUpdated(areaID);
 
             // alert(data);
             // data.areas.forEach(function(area) {
@@ -1097,6 +1108,36 @@ $("#savedFormContainer").on("click", "#saveArea", function(e){
     updateAreaApi(areaID, areaData);
 })
 
+$("#savedFormContainer").on("click", "#cancelSaveArea", function(e){
+    console.log("cancelSaveArea()");
+    
+    let areaID = $(this).attr("areaID");
+    let dataOrigin = $("#origindata_"+areaID);
+    let alt = dataOrigin.attr("alt");
+    let coordinate = dataOrigin.attr("coordinate");
+    let shape = dataOrigin.attr("shape");
+    let status = dataOrigin.attr("status");
+    let meta = dataOrigin.attr("meta");
+    let description = dataOrigin.attr("description");
+    let device_type = dataOrigin.attr("device_type");
+    let id_asset = dataOrigin.attr("id_asset");
+    let id_asset_group = dataOrigin.attr("id_asset_group");    
+
+    $(`#savedFormContainer #alt_${areaID}`).val(alt);
+    $(`#savedFormContainer #coords_${areaID}`).val(coordinate);
+    $(`#savedFormContainer #shape_${areaID}`).val(shape).change();
+    $(`#savedFormContainer #status_${areaID}`).val(status).change();
+    // $(`#savedFormContainer #meta_${areaID}`).val(meta);
+    $(`#savedFormContainer #description_${areaID}`).text(description);
+    // $(`#savedFormContainer #device_type_${areaID}`).text(device_type);
+    $(`#savedFormContainer #id_asset_${areaID}`).text(id_asset);
+    $(`#savedFormContainer #id_asset_group_${areaID}`).text(id_asset_group);
+
+
+    updateSavedCoordsArea(coordinate, areaID);
+    RowCoordUpdatedUpdated(areaID);
+});
+
 // function renderAreaFromNode(nodeID, size, position){
 //     // Memperbaruin area pada peta berdasarkan ukuran dan posisi node yang di-resize
 //     const width = size.width;
@@ -1295,9 +1336,6 @@ function updateSavedCoordsArea(_coords, areaID){
     let status = getSavedStatusActivedRow();
     let description = getSavedDescriptionActivedRow();
 
-    console.log("updateSavedCoordsArea()::areaID=> "+areaID);
-    
-
     let newArea = {
         alt: alt,
         shape: shape,
@@ -1306,8 +1344,9 @@ function updateSavedCoordsArea(_coords, areaID){
         areaId: areaID,
         coords: _coords
     };
-    
 
+    console.log(newArea);
+    
     updateAreaOnMap(savedAreaName, newArea);
 }
 
@@ -1319,6 +1358,7 @@ function savedRowCoordUpdated(areaID){
 function RowCoordUpdatedUpdated(areaID){
     $(`#savedFormContainer #buttonArea_${areaID} #deleteArea`).removeClass(`d-none`);
     $(`#savedFormContainer #buttonArea_${areaID} #updateArea`).addClass(`d-none`);
+    $(`#savedFormContainer #savedRadio_${areaID}`).prop("checked", false);
 }
 
 function radiusCalc(x, y){
@@ -1342,6 +1382,13 @@ function removeArea(areaID){
 function storeSavedUpdate(){
     console.log("storeSavedUpdate");
     
+}
+
+function setNodeCoordinate(areaID){
+    //
+    
+    let areaShape = $("#areaContainer").find("[id*='savedArea_"+areaID+"']").attr('shape');
+    let nodes = $("#nodeContainer").find("[id*='savedNode_"+areaID+"_']");
 }
 
 </script>
