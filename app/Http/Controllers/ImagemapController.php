@@ -99,7 +99,7 @@ class ImagemapController extends Controller
     
     public function updateMap(Request $request)
     {
-        return response()->json($request);
+        // return response()->json($request);
         $data = ['id' => $request->id, 'id_asset_group' => $request->areas['id_asset_group'], 'name' => $request->areas['alt'], 'coordinate' => $request->areas['coords'], 'shape' => $request->areas['shape'], 'status' => $request->areas['status'], 'description' => $request->areas['description'], 'id_asset' => $request->areas['id_asset'], 'device_type' => $request->areas['device_type'], 'meta' => $request->areas['meta']];
 
         // return response()->json(['msg' => $data]);

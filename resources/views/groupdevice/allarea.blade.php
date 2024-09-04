@@ -151,7 +151,7 @@
             @foreach ($areas as $area)
                 <div class="area-row row" id="area-row-{{ $area->id }}">
                     <input type="hidden" id="area_id" value="{{ $area->id }}">
-                    <input type="hidden" id="id_asset_group_{{ $area->id }}" value="{{ $area->id_asset_group }}">
+                    <input type="hidden" name="id_asset_group_{{ $area->id }}" value="{{ $area->id_asset_group }}">
         
                     <div class="col col-1 align-content-center text-center">
                         <input type="radio" id="savedRadio_{{ $area->id }}" name="selected_area" value="{{ $area->id }}">
@@ -712,8 +712,6 @@ function saveAreasApi(groupId) {
 }
 
 function updateAreaApi(groupId, data) {
-
-    console.log(data);
     
 
     $.ajax({
@@ -1077,7 +1075,7 @@ $("#savedFormContainer").on("click", "#saveArea", function(e){
     let shape = getSavedShapeActivedRow();
     let description = getSavedDescriptionActivedRow();
     let coords = getSavedCoordsActivedRow();
-    let id_asset_group = getSavedIdGroupActivedRow();
+    let id_asset_group = getSavedIdAssetGroupActivedRow();
     let id_asset = getSavedAssetActivedRow();
     let status = getSavedStatusActivedRow()
     let device_type = '';
@@ -1094,6 +1092,7 @@ $("#savedFormContainer").on("click", "#saveArea", function(e){
         device_type: device_type,
         meta: meta,
     };
+    
 
     updateAreaApi(areaID, areaData);
 })
@@ -1212,7 +1211,7 @@ function getSavedCoordsActivedRow(){
     return getSavedActiveRow().find('input[name^="coords_"]').val();
 }
 
-function getSavedIdGroupActivedRow(){
+function getSavedIdAssetGroupActivedRow(){
     return getSavedActiveRow().find('input[name^="id_asset_group_"]').val();
 }
 

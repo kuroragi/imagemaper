@@ -312,10 +312,10 @@ class Helpers{
             'name' => $map['name'],
             'coordinate' => $map['coordinate'],
             'description' => $map['description'],
-            'status' => $map['status'],
-            'shape' => $map['shape'],
             'device_type' => $map['device_type'],
+            'status' => $map['status'],
             'meta' => $map['meta'],
+            'shape' => $map['shape'],
             'id_asset_group' => $map['id_asset_group'],
             'id_asset' => $map['id_asset'],
         ];
@@ -357,7 +357,7 @@ class Helpers{
             }
         } catch (\Throwable $th) {
             //throw $th;
-            return response()->json($th);
+            return $th;
 
         }
     }
